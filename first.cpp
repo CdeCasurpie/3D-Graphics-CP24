@@ -2,6 +2,36 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+
+// VERTEX SHADER: es un shader en el cual se procesan los vertices, y se le puede dar color, textura, etc.
+// en este caso solo le damos la posición del vertice, y OpenGL se encarga de dibujarlo en la pantalla.
+const char *vertexShaderSource = R"glsl(
+#version 330 core
+layout (location = 0) in vec3 aPos; // 0 porque es el primer atributo (asi como pusimos abajo en los VAO y VBO)
+void main()
+{
+    // gl_Position es una variable especial que le dice a OpenGL donde dibujar el vertice en la pantalla
+    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+}
+)glsl";
+
+
+// FRAGMENT SHADER: Decide el color de cada pixel DENTRO del triángulo, y se ejecuta para 
+// cada pixel que forma parte del triángulo.
+const char *fragmentShaderSource = R"glsl(
+#version 330 core
+out vec4 FragColor; // variable de salida que le dice a OpenGL el color del pixel
+void main()
+{
+    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f); // color naranja
+}
+)glsl";
+// En este caso le ponemos un color naranja a todos los pixeles del triángulo, pero se puede hacer que cada pixel tenga un color diferente, o que tenga una textura, etc.
+
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
+
 int main() {
     // PASOS OBLIGATORIOS, webadas
     // -----------------------------------------------------------------
@@ -26,6 +56,7 @@ int main() {
 
     // Hacer que el contexto de OpenGL sea el de la ventana creada (esto es para que OpenGL sepa donde dibujar)
     glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 
     // GLAD: Cargar todos los punteros de funciones OpenGL
@@ -36,6 +67,44 @@ int main() {
     // > ¿Sirve para algo más?
     // > No, solo para cargar las funciones de OpenGL. No es necesario entender como funciona GLAD, solo usarlo.
     
+
+
+
+    // SHADERS PARA LA GPU
+    // -----------------------------------------------------------------
+    // VERTEX SHADER
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER); // Crea un shader de tipo vertex shader y devuelve un ID (vertexShader) que lo identifica
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); // Le pasamos el código fuente del shader (vertexShaderSource) al shader creado (vertexShader)
+    glCompileShader(vertexShader);
+
+    // Es necesario compilar los shaders, porque como habremos visto, son un código que la GPU va a ejecutar, y la GPU no entiende C++, por eso hay que compilarlo a un lenguaje que la GPU entienda (GLSL).
+
+    // FRAGMENT SHADER
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER); // Crea un shader de tipo fragment shader y devuelve un ID (fragmentShader) que lo identifica
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL); // Le pasamos el código fuente del shader (fragmentShaderSource) al shader creado (fragmentShader)
+    glCompileShader(fragmentShader);
+
+
+    // glShaderSource es una función que le dice a OpenGL que el código fuente del shader es el que le pasamos.
+    // Sus atributos son:
+    // - el ID del shader (vertexShader o fragmentShader)
+    // - el número de cadenas de código fuente (1, porque solo le pasamos una cadena de código fuente)
+    // - un puntero a un array de cadenas de código fuente (&vertexShaderSource o &fragmentShaderSource)
+    // - un puntero a un array de longitudes de las cadenas de código fuente (NULL, porque las cadenas de código fuente son nula
+
+
+    // UNIR O LINKEAR LOS SHADERS EN UNO
+    unsigned int shaderProgram = glCreateProgram(); // Crea un programa de shaders y devuelve un ID (shaderProgram) que lo identifica
+    glAttachShader(shaderProgram, vertexShader); // Le pasamos el shader de tipo vertex shader al programa de shaders
+    glAttachShader(shaderProgram, fragmentShader); // Le pasamos el shader de tipo fragment shader al programa de shaders
+    glLinkProgram(shaderProgram); // Linkea los shaders en un solo programa de shaders, que es el que se va a ejecutar en la
+
+
+    // Como ya creamos uno shaderProgram ya no son necesarios los anteriores shaders.
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+
 
 
     // LAS COORDENADAS EN OPENGL SON EN 3D, POR ESO SE USAN VERTICES DE 3 COMPONENTES (X, Y, Z)
@@ -66,12 +135,41 @@ int main() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 
+
+    // Ahora hay que decirle a la GPU como interpretar la data que le hemos enviado
+    // ya que los vertices son solo un array de floats, y la GPU no sabe como interpretarlos.
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    // los atributos de esta funcion son:
+    // - el índice del atributo (0, porque es el primer atributo)
+    // - el número de componentes del atributo (3, porque son 3 floats por vertice)
+    // - el tipo de dato del atributo (GL_FLOAT, porque son floats)
+    // - si los datos deben ser normalizados (GL_FALSE, porque no queremos normalizar)
+    // - el tamaño del stride (3 * sizeof(float), porque cada vertice tiene 3 floats)
+    // - el offset (0, porque los datos empiezan en el inicio del array)
+
+    glEnableVertexAttribArray(0); // Habilitamos el atributo de posición (0, porque es el primer atributo)
+    // > ¿Que es un atributo?
+    // > Un atributo es una propiedad de un vertice, como la posición, el color, las coordenadas 
+    //   de textura, etc. En este caso estamos habilitando el atributo de posición,
+
+    // NOS DESATAMOS (unbind) del VBO y VAO, para que OpenGL no los modifique accidentalmente
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+
+
     // MAIN LOOP (bucle de juego)
     while(!glfwWindowShouldClose(window)) { // mientras la ventana no se cierre
         // limpiar pantalla
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // Color de fondo
         glClear(GL_COLOR_BUFFER_BIT); // Limpiar el buffer de color
         // dibujar triangulo
+
+        // LE DECIMOS DIBUJA! ---------------------------
+        glUseProgram(shaderProgram); // Usar el programa de shaders
+        glBindVertexArray(VAO); // Atamos el VAO, para que OpenGL sepa que vamos a dibujar con este VAO
+        glDrawArrays(GL_TRIANGLES, 0, 3); // Dibujar el triangulo, con 3 vertices, empezando en el vertice 0
+        glBindVertexArray(0); // Desatamos el VAO, para que OpenGL no lo modifique
 
 
 
@@ -103,4 +201,9 @@ int main() {
     // > No, si no lo haces, el programa se queda en memoria y puede causar problemas.
 
     return 0;
+}
+
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    glViewport(0, 0, width, height); // Cambia el tamaño del viewport (la ventana de OpenGL) cuando se cambia el tamaño de la ventana
 }
