@@ -39,11 +39,31 @@ int main() {
     
 
 
+
     // MAIN LOOP (bucle de juego)
     while(!glfwWindowShouldClose(window)) { // mientras la ventana no se cierre
         // limpiar pantalla
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // Color de fondo
+        glClear(GL_COLOR_BUFFER_BIT); // Limpiar el buffer de color
         // dibujar triangulo
 
+
+
+
+        // INPUTS ---------------------------------------
+        // Se hace referencia al window porque es el que tiene el contexto de OpenGL, 
+        // y es el que recibe los inputs del teclado y mouse.
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) { // asi se reconocen las teclas, si se presiona S
+            std::cout << "S key is pressed" << std::endl; 
+            glfwSetWindowShouldClose(window, true); // Cierra la ventana si se presiona S
+        } else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) { // si se presiona W
+            std::cout << "W key is pressed" << std::endl; 
+        } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) { // si se presiona A
+            std::cout << "A key is pressed" << std::endl; 
+        } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) { // si se presiona D
+            std::cout << "D key is pressed" << std::endl; 
+
+        }
 
 
         // intercambiar buffers y verificar eventos
