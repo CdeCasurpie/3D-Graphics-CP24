@@ -36,8 +36,34 @@ int main() {
     // > ¿Sirve para algo más?
     // > No, solo para cargar las funciones de OpenGL. No es necesario entender como funciona GLAD, solo usarlo.
     
-    
 
+
+    // LAS COORDENADAS EN OPENGL SON EN 3D, POR ESO SE USAN VERTICES DE 3 COMPONENTES (X, Y, Z)
+    float vertices[] = {
+        -0.5f, -0.5f, 0.0f, // left  
+         0.5f, -0.5f, 0.0f, // right 
+         0.0f,  0.5f, 0.0f  // top   
+    };
+
+
+    // CREAR EL VERTEX BUFFER OBJECT (VBO) Y EL VERTEX ARRAY OBJECT (VAO)
+    // -----------------------------------------------------------------
+    // EL VBO es un buffer que almacena los vertices en la memoria de la GPU, para que OpenGL 
+    // pueda acceder a ellos y dibujarlos.
+    // Por otro lado el VAO es un objeto que almacena la configuración de los atributos de los vertices,
+    // como la posición, el color, las coordenadas de textura, etc.
+    unsigned int VBO, VAO;      // Estas variables guardan los IDs del VBO y VAO, que son generados por OpenGL.
+    glGenVertexArrays(1, &VAO); // Genera un VAO 
+    glGenBuffers(1, &VBO);      // Genera un VBO
+
+    // Bind (atamos) el VAO, para que OpenGL sepa que vamos a configurar este VAO
+    glBindVertexArray(VAO);
+    // Bind (atamos) el VBO, para que OpenGL sepa que vamos a configurar este VBO
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+
+    // Copiamos los vertices al VBO, para que OpenGL pueda acceder a ellos
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 
     // MAIN LOOP (bucle de juego)
