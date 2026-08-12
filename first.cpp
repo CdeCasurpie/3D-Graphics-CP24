@@ -1,6 +1,8 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <vector>
+#include <cstdlib>
 
 
 // VERTEX SHADER: es un shader en el cual se procesan los vertices, y se le puede dar color, textura, etc.
@@ -108,12 +110,39 @@ int main() {
 
 
     // LAS COORDENADAS EN OPENGL SON EN 3D, POR ESO SE USAN VERTICES DE 3 COMPONENTES (X, Y, Z)
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f, // left  
-         0.5f, -0.5f, 0.0f, // right 
-         0.0f,  0.5f, 0.0f  // top   
-    };
+    float ax = -0.5f, ay = -0.5f, az = 0.0f; // Vertice A
+    float bx = 0.5f, by = -0.5f, bz = 0.0f; // Vertice B
+    float cx = 0.0f, cy = 0.5f, cz = 0.0f; // Vertice C
+    
 
+    // PUNTO AL AZAR, para lo del triangulo de la clase
+    float px = ax;
+    float py = ay;
+
+    std::vector<float> vertices;
+    int totalPuntos = 5000000;
+    int puntosVisibles = 1;
+
+    for (int i = 0; i < totalPuntos; i++) {
+        vertices.push_back(px);
+        vertices.push_back(py);
+        vertices.push_back(0.0f); // Z = 0.0f,
+
+        int randomVertex = rand() % 3; // 0, 1, 2
+
+        // El punto medio calculado en cuestion
+        if (randomVertex == 0) {
+            px = (px + ax) / 2.0f;
+            py = (py + ay) / 2.0f;
+        } else if (randomVertex == 1) {
+            px = (px + bx) / 2.0f;
+            py = (py + by) / 2.0f;
+        } else {
+            px = (px + cx) / 2.0f;
+            py = (py + cy) / 2.0f;
+        }
+        // y repetimos
+    }
 
     // CREAR EL VERTEX BUFFER OBJECT (VBO) Y EL VERTEX ARRAY OBJECT (VAO)
     // -----------------------------------------------------------------
@@ -132,8 +161,7 @@ int main() {
 
 
     // Copiamos los vertices al VBO, para que OpenGL pueda acceder a ellos
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
 
     // Ahora hay que decirle a la GPU como interpretar la data que le hemos enviado
@@ -167,8 +195,10 @@ int main() {
 
         // LE DECIMOS DIBUJA! ---------------------------
         glUseProgram(shaderProgram); // Usar el programa de shaders
+        glEnable(GL_PROGRAM_POINT_SIZE); // permite cambiar el tamaño de los puntos
+        glPointSize(3.0f); // tamaño de los puntos
         glBindVertexArray(VAO); // Atamos el VAO, para que OpenGL sepa que vamos a dibujar con este VAO
-        glDrawArrays(GL_TRIANGLES, 0, 3); // Dibujar el triangulo, con 3 vertices, empezando en el vertice 0
+        glDrawArrays(GL_POINTS, 0, totalPuntos); // Dibujar el triangulo, con 3 vertices, empezando en el vertice 0
         glBindVertexArray(0); // Desatamos el VAO, para que OpenGL no lo modifique
 
 
@@ -187,6 +217,13 @@ int main() {
         } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) { // si se presiona D
             std::cout << "D key is pressed" << std::endl; 
 
+        }
+
+
+        if (puntosVisibles < totalPuntos) { // si no hemos dibujado todos los puntos
+            puntosVisibles += 100; // dibujar 1000 puntos más
+        } else {
+            std::cout << "Todos los puntos ya fueron dibujados" << std::endl;
         }
 
 
