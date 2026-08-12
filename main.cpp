@@ -10,20 +10,24 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // Vertex Shader source code
-const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
+const char *vertexShaderSource = R"glsl(
+#version 330 core
+layout (location = 0) in vec3 aPos;
+void main()
+{
+   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+}
+)glsl";
 
 // Fragment Shader source code
-const char *fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\n\0";
+const char *fragmentShaderSource = R"glsl(
+#version 330 core
+out vec4 FragColor;
+void main()
+{
+   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+}
+)glsl";
 
 int main()
 {

@@ -11,7 +11,7 @@ find_package(OpenGL REQUIRED)
 include_directories(glad/include)
 
 # Add executable
-add_executable(HelloTriangle main.cpp glad/src/gl.c)
+add_executable(HelloTriangle first.cpp glad/src/gl.c)
 
 # Link libraries
 target_link_libraries(HelloTriangle glfw OpenGL::GL)
