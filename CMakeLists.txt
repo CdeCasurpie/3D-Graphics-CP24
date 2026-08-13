@@ -19,3 +19,11 @@ target_link_libraries(ChaosAlgorithm glfw OpenGL::GL)
 # Target 3: Sierpinski - Recursive
 add_executable(RecursiveAlgorithm Sierpinski/RecursiveAlgorithm/main.cpp glad/src/gl.c)
 target_link_libraries(RecursiveAlgorithm glfw OpenGL::GL)
+
+# Target 4: Sierpinski - Tetrahedron 3D (Framework del profesor)
+find_package(gproshan)
+if(gproshan_FOUND)
+    include_directories(SYSTEM ${gproshan_INCLUDE_DIR})
+    add_executable(Tetrahedron Sierpinski/Tetrahedron/main.cpp)
+    target_link_libraries(Tetrahedron gproshan)
+endif()

@@ -1,4 +1,4 @@
-.PHONY: all HelloTriangle ChaosAlgorithm RecursiveAlgorithm clean run-HelloTriangle run-ChaosAlgorithm run-RecursiveAlgorithm
+.PHONY: all HelloTriangle ChaosAlgorithm RecursiveAlgorithm Tetrahedron clean run-HelloTriangle run-ChaosAlgorithm run-RecursiveAlgorithm run-Tetrahedron
 
 all:
 	@echo "Configuring CMake..."
@@ -18,6 +18,10 @@ RecursiveAlgorithm:
 	@cmake -B build
 	@cmake --build build --target RecursiveAlgorithm
 
+Tetrahedron:
+	@cmake -B build
+	@cmake --build build --target Tetrahedron
+
 run-HelloTriangle: HelloTriangle
 	@./build/HelloTriangle
 
@@ -26,6 +30,9 @@ run-ChaosAlgorithm: ChaosAlgorithm
 
 run-RecursiveAlgorithm: RecursiveAlgorithm
 	@./build/RecursiveAlgorithm
+
+run-Tetrahedron: Tetrahedron
+	@./build/Tetrahedron
 
 clean:
 	@echo "Cleaning build directory..."
