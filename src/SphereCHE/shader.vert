@@ -7,6 +7,6 @@ out vec3 Normal;
 
 void main() {
     gl_Position = vec4(aPos, 1.0);
-    FragPos = aPos; // Como no hay matrices, la posición global es la misma que la local
+    FragPos = aPos;
     Normal = aNormal;
 }

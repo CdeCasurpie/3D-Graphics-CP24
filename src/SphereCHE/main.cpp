@@ -72,7 +72,7 @@ void processAppInput(Window& window, EricStructure& eric, VAO& vao, VBO*& vbo, E
 }
 
 int main() {
-    Window window(800, 600, "EricStructure (CHE) - Tarea 3D");
+    Window window(800, 800, "EricStructure (CHE) - Tarea 3D");
     Shader shader("src/SphereCHE/shader.vert", "src/SphereCHE/shader.frag");
 
     printControls();

@@ -6,7 +6,7 @@
 #include <cstdlib>
 
 int main() {
-    Window window(800, 600, "Sierpinski Chaos (Framework)");
+    Window window(800, 800, "Sierpinski Chaos (Framework)");
     Shader shader("src/Sierpinski/ChaosAlgorithm/shader.vert", "src/Sierpinski/ChaosAlgorithm/shader.frag");
 
     float ax = -0.5f, ay = -0.5f;

@@ -5,7 +5,7 @@
 
 int main()
 {
-    Window window(800, 600, "Hello Triangle (Framework)");
+    Window window(800, 800, "Hello Triangle (Framework)");
 
     // Compila los Shaders leyendo desde los archivos (rutas relativas a la carpeta de ejecución)
     Shader shader("src/HelloTriangle/shader.vert", "src/HelloTriangle/shader.frag");

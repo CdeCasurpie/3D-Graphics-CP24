@@ -27,7 +27,7 @@ void generateSierpinski(std::vector<float>& vertices,
 
 int main()
 {
-    Window window(800, 600, "Sierpinski Recursive (Framework)");
+    Window window(800, 800, "Sierpinski Recursive (Framework)");
     Shader shader("src/Sierpinski/RecursiveAlgorithm/shader.vert", "src/Sierpinski/RecursiveAlgorithm/shader.frag");
 
     std::vector<float> vertices;
