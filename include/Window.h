@@ -5,17 +5,31 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+/**
+ * @class Window
+ * @brief Wrapper para inicializar GLFW, GLAD y gestionar el ciclo de vida de la ventana.
+ */
 class Window {
 public:
     GLFWwindow* glfwWindow;
     unsigned int width;
     unsigned int height;
 
+    /**
+     * @brief Constructor que crea la ventana de OpenGL.
+     * @param w Ancho de la ventana.
+     * @param h Alto de la ventana.
+     * @param title Titulo de la ventana.
+     */
     Window(unsigned int w, unsigned int h, const char* title) : width(w), height(h) {
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        
+        // Hint para Tiling Window Managers (Hyprland, i3, bspwm): Forzar modo flotante
+        glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
         glfwWindow = glfwCreateWindow(width, height, title, NULL, NULL);
         if (glfwWindow == NULL) {

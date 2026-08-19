@@ -7,10 +7,19 @@
 #include <fstream>
 #include <sstream>
 
+/**
+ * @class Shader
+ * @brief Clase que carga, compila y linkea Vertex y Fragment Shaders desde archivos externos.
+ */
 class Shader {
 public:
-    unsigned int ID;
+    unsigned int ID; ///< ID del programa de shader en OpenGL
 
+    /**
+     * @brief Constructor que compila el Shader Program.
+     * @param vertexPath Ruta al archivo .vert
+     * @param fragmentPath Ruta al archivo .frag
+     */
     Shader(const char* vertexPath, const char* fragmentPath) {
         std::string vertexCode;
         std::string fragmentCode;
@@ -57,21 +66,16 @@ public:
         glDeleteShader(fragment);
     }
 
-    void use() {
-        glUseProgram(ID);
-    }
+    /** @brief Activa el programa de shader para ser usado en el siguiente dibujo */
+    void use() { glUseProgram(ID); }
 
-    void setBool(const std::string &name, bool value) const {         
-        glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value); 
-    }
-    void setInt(const std::string &name, int value) const { 
-        glUniform1i(glGetUniformLocation(ID, name.c_str()), value); 
-    }
-    void setFloat(const std::string &name, float value) const { 
-        glUniform1f(glGetUniformLocation(ID, name.c_str()), value); 
-    }
+    // --- Funciones para pasar variables uniformes al Shader ---
+    void setBool(const std::string &name, bool value) const { glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value); }
+    void setInt(const std::string &name, int value) const { glUniform1i(glGetUniformLocation(ID, name.c_str()), value); }
+    void setFloat(const std::string &name, float value) const { glUniform1f(glGetUniformLocation(ID, name.c_str()), value); }
 
 private:
+    /** @brief Funcion interna para imprimir errores de compilacion de shaders */
     void checkCompileErrors(unsigned int shader, std::string type) {
         int success;
         char infoLog[1024];
