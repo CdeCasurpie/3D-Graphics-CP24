@@ -1,0 +1,12 @@
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+
+out vec3 FragPos;
+out vec3 Normal;
+
+void main() {
+    gl_Position = vec4(aPos, 1.0);
+    FragPos = aPos; // Como no hay matrices, la posición global es la misma que la local
+    Normal = aNormal;
+}
