@@ -13,7 +13,17 @@ public:
     unsigned int ID;
 
     /**
-     * @brief Constructor que sube datos a la VRAM desde un vector.
+     * @brief Constructor que sube datos a la VRAM desde un vector de floats.
+     * @param vertices Vector de floats de la STL.
+     */
+    VBO(const std::vector<float>& vertices) {
+        glGenBuffers(1, &ID);
+        glBindBuffer(GL_ARRAY_BUFFER, ID);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    }
+
+    /**
+     * @brief Constructor que sube datos a la VRAM desde un arreglo crudo.
      * @param vertices Arreglo crudo casteado a float*.
      * @param sizeInBytes Tamano total en bytes del arreglo a subir.
      */
