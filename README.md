@@ -1,56 +1,69 @@
-# 3D-Graphics-CP24
+# 3D Graphics - OpenGL Framework and CHE Implementation
 
-Repositorio para los laboratorios y asignaciones del curso de Computación Gráfica 3D. 
-Este proyecto contiene un mini-framework propio en OpenGL crudo (usando GLFW y GLAD) y la implementación de la estructura de datos topológica **Compact Half-Edge (CHE)**.
+This repository contains the assignments and a custom OpenGL framework developed for the 3D Graphics course. It demonstrates fundamental computer graphics concepts, including the implementation of the Compact Half-Edge (CHE) topological data structure for efficient mesh representation.
 
-## 📂 Estructura del Proyecto
+## Technologies Used
+* **C++17**
+* **OpenGL 3.3 Core Profile**
+* **GLFW**: Window management and input handling
+* **GLAD**: OpenGL function pointer loading
+* **CMake**: Build system generation
+* **Make**: Build automation
 
-- `include/`: Contiene las clases del framework (`Window`, `Shader`, `VAO`, `VBO`, `EBO`) y la estructura de datos `EricStructure.h` (CHE).
-- `src/`: Contiene los distintos ejercicios desarrollados a lo largo del curso.
-  - `HelloTriangle/`: Setup inicial de OpenGL.
-  - `Sierpinski/`: Fractales en 2D generados con OpenGL.
-  - `SphereCHE/`: (Tarea Principal) Implementación de Compact Half-Edge rendering interactivo.
+---
 
-## 🚀 Compilación y Ejecución
+## Project Structure
 
-El proyecto utiliza **CMake** por detrás, pero está envuelto en un **Makefile** para facilitar su uso.
+* `include/`: Contains the core framework wrappers (`Window`, `Shader`, `VAO`, `VBO`, `EBO`) and the data structure `EricStructure.h` (CHE).
+* `src/`: Contains the specific implementation for each assignment.
+  * `HelloTriangle/`: Basic OpenGL setup and rendering pipeline test.
+  * `Sierpinski/`: 2D fractal rendering algorithms (Chaos Game and Recursive).
+  * `SphereCHE/`: Main implementation of the Compact Half-Edge structure for rendering parametric spheres and cubes.
 
-### 1. Compilar todo el proyecto
-Para configurar CMake y compilar todos los ejercicios a la vez, simplemente ejecuta en la raíz del repositorio:
+---
+
+## Build and Execution Instructions
+
+The project uses CMake to generate the build files, but a Makefile is provided in the root directory for convenience.
+
+### 1. Build the Project
+To configure CMake and build all executable targets, run the following command in the root directory:
 
 ```bash
 make all
 ```
 
-### 2. Ejecutar un ejercicio específico
-Una vez compilado, puedes usar los siguientes comandos `make run-<nombre>` para lanzar el ejecutable deseado:
+### 2. Run the Applications
+After building, you can execute any of the generated targets using the corresponding make command:
 
-- **Tarea CHE (Esfera y Cubo con iluminación interactiva):**
-  ```bash
-  make run-SphereCHE
-  ```
-- **Hello Triangle (Básico):**
-  ```bash
-  make run-HelloTriangle
-  ```
-- **Sierpinski (Chaos Game Points):**
-  ```bash
-  make run-ChaosAlgorithm
-  ```
-- **Sierpinski (Triángulos Recursivos):**
-  ```bash
-  make run-RecursiveAlgorithm
-  ```
+**CHE Data Structure (Main Assignment):**
+```bash
+make run-SphereCHE
+```
+
+**Previous Assignments:**
+```bash
+make run-HelloTriangle
+make run-ChaosAlgorithm
+make run-RecursiveAlgorithm
+```
 
 ---
 
-## 🎮 Controles de la Aplicación CHE (`make run-SphereCHE`)
+## Application Controls (SphereCHE)
 
-Al lanzar el programa principal de CHE, la ventana de OpenGL responderá a los siguientes atajos de teclado:
+When running `make run-SphereCHE`, use the following keyboard controls to interact with the application:
 
-- **`C`**: Carga y renderiza el modelo de un **Cubo** (Test Inicial de la estructura CHE).
-- **`V`**: Carga y renderiza una **Esfera Paramétrica**.
-- **`1`**: Modo de renderizado: Nube de Puntos (`GL_POINTS`).
-- **`2`**: Modo de renderizado: Wireframe (`GL_LINE`).
-- **`3`**: Modo de renderizado: Sólido con iluminación plana (`GL_FILL`).
-- **`W/A/S/D/Q/E`**: Mueve dinámicamente la posición de la luz en el espacio 3D.
+**Geometry Selection:**
+* `C` : Load Cube mesh
+* `V` : Load Parametric Sphere mesh
+
+**Rendering Modes:**
+* `1` : Point Cloud (`GL_POINTS`)
+* `2` : Wireframe / Mesh (`GL_LINE`)
+* `3` : Solid with diffuse lighting (`GL_FILL`)
+
+**Lighting Controls:**
+* `W` / `S` : Move light along the Y axis (Up/Down)
+* `A` / `D` : Move light along the X axis (Left/Right)
+* `Q` / `E` : Move light along the Z axis (Forward/Backward)
