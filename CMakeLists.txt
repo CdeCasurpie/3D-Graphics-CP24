@@ -7,6 +7,7 @@ find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 
 include_directories(glad/include)
+include_directories(include)
 
 # Target 1: Hello Triangle
 add_executable(HelloTriangle HelloTriangle/main.cpp glad/src/gl.c)
