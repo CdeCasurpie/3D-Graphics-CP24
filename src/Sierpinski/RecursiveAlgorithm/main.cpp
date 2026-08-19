@@ -1,22 +1,8 @@
 #include "Window.h"
 #include "Shader.h"
+#include "VAO.h"
+#include "VBO.h"
 #include <vector>
-
-const char *vertexShaderSource = R"glsl(
-#version 330 core
-layout (location = 0) in vec3 aPos;
-void main() {
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-}
-)glsl";
-
-const char *fragmentShaderSource = R"glsl(
-#version 330 core
-out vec4 FragColor;
-void main() {
-    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-}
-)glsl";
 
 void generateSierpinski(std::vector<float>& vertices, 
                         float ax, float ay, 
@@ -42,23 +28,20 @@ void generateSierpinski(std::vector<float>& vertices,
 int main()
 {
     Window window(800, 600, "Sierpinski Recursive (Framework)");
-    Shader shader(vertexShaderSource, fragmentShaderSource);
+    Shader shader("src/Sierpinski/RecursiveAlgorithm/shader.vert", "src/Sierpinski/RecursiveAlgorithm/shader.frag");
 
     std::vector<float> vertices;
     generateSierpinski(vertices, -0.8f, -0.8f, 0.8f, -0.8f, 0.0f, 0.8f, 6);
 
-    unsigned int VBO, VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    VAO vao;
+    vao.bind();
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0); 
-    glBindVertexArray(0); 
+    VBO vbo(vertices);
+
+    vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+
+    vao.unbind();
+    vbo.unbind();
 
     int totalTrianglesVertices = vertices.size() / 3;
 
@@ -68,14 +51,14 @@ int main()
         window.clear();
 
         shader.use();
-        glBindVertexArray(VAO);
+        vao.bind();
         glDrawArrays(GL_TRIANGLES, 0, totalTrianglesVertices);
  
         window.update();
     }
 
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    vao.destroy();
+    vbo.destroy();
 
     return 0;
 }

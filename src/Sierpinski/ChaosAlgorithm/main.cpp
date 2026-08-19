@@ -1,27 +1,13 @@
 #include "Window.h"
 #include "Shader.h"
+#include "VAO.h"
+#include "VBO.h"
 #include <vector>
 #include <cstdlib>
 
-const char *vertexShaderSource = R"glsl(
-#version 330 core
-layout (location = 0) in vec3 aPos;
-void main() {
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-}
-)glsl";
-
-const char *fragmentShaderSource = R"glsl(
-#version 330 core
-out vec4 FragColor;
-void main() {
-    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-}
-)glsl";
-
 int main() {
     Window window(800, 600, "Sierpinski Chaos (Framework)");
-    Shader shader(vertexShaderSource, fragmentShaderSource);
+    Shader shader("src/Sierpinski/ChaosAlgorithm/shader.vert", "src/Sierpinski/ChaosAlgorithm/shader.frag");
 
     float ax = -0.5f, ay = -0.5f;
     float bx = 0.5f, by = -0.5f;
@@ -47,18 +33,15 @@ int main() {
         }
     }
 
-    unsigned int VBO, VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    VAO vao;
+    vao.bind();
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    VBO vbo(vertices);
+
+    vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+
+    vao.unbind();
+    vbo.unbind();
 
     int puntosVisibles = 1;
 
@@ -70,9 +53,8 @@ int main() {
         glEnable(GL_PROGRAM_POINT_SIZE);
         glPointSize(2.0f);
         
-        glBindVertexArray(VAO);
+        vao.bind();
         glDrawArrays(GL_POINTS, 0, puntosVisibles);
-        glBindVertexArray(0);
 
         if (puntosVisibles < totalPuntos) {
             puntosVisibles += 50; 
@@ -81,8 +63,8 @@ int main() {
         window.update();
     }
 
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    vao.destroy();
+    vbo.destroy();
 
     return 0;
 }
