@@ -13,9 +13,18 @@ This repository contains the assignments and a custom OpenGL framework developed
 
 * `include/`: Contains the core framework wrappers (`Window`, `Shader`, `VAO`, `VBO`, `EBO`) and the data structure `EricStructure.h` (CHE).
 * `src/`: Contains the specific implementation for each assignment.
-  * `HelloTriangle/`: Basic OpenGL setup and rendering pipeline test.
+  * `Transformaciones/`: **(Current Exercise)** Implementation of MVP matrices (GLM), featuring a rotating cube, an orbiting sphere, and 4-point real-time diffuse lighting.
+  * `SphereCHE/`: Implementation of the Compact Half-Edge structure for rendering parametric spheres and cubes.
   * `Sierpinski/`: 2D fractal rendering algorithms (Chaos Game and Recursive).
-  * `SphereCHE/`: Main implementation of the Compact Half-Edge structure for rendering parametric spheres and cubes.
+  * `HelloTriangle/`: Basic OpenGL setup and rendering pipeline test.
+
+---
+
+## 🎥 Current Exercise Demo: Transformations & Orbits
+
+This module showcases the Model-View-Projection architecture. A central cube rotates on its own axes while a parametric sphere orbits around it, illuminated by four static colored light sources.
+
+[**▶ Watch the Orbit Demo Video**](src/Transformaciones/OrbitandoAndo.mp4)
 
 ---
 
@@ -33,7 +42,12 @@ make all
 ### 2. Run the Applications
 After building, you can execute any of the generated targets using the corresponding make command:
 
-**CHE Data Structure (Main Assignment):**
+**Current Assignment (Transformations & MVP):**
+```bash
+make run-Transformaciones
+```
+
+**CHE Data Structure:**
 ```bash
 make run-SphereCHE
 ```
