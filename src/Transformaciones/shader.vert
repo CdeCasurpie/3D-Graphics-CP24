@@ -10,14 +10,8 @@ uniform mat4 view;
 uniform mat4 projection;
 
 void main() {
-    // Calculamos la posición del vértice en el mundo
     vec4 worldPos = model * vec4(aPos, 1.0);
     FragPos = vec3(worldPos);
-    
-    // Calculamos la normal. Usamos la matriz inversa transpuesta para que la normal
-    // escale y rote correctamente si el modelo sufre transformaciones no uniformes.
     Normal = mat3(transpose(inverse(model))) * aNormal;
-    
-    // Proyectamos el vértice a la pantalla (MVP)
     gl_Position = projection * view * worldPos;
 }
