@@ -24,7 +24,7 @@ This repository contains the assignments and a custom OpenGL framework developed
 
 This module showcases the Model-View-Projection architecture. A central cube rotates on its own axes while a parametric sphere orbits around it, illuminated by four static colored light sources.
 
-[**▶ Watch the Orbit Demo Video**](src/Transformaciones/OrbitandoAndo.mp4)
+![Orbit Demo Video](src/Transformaciones/OrbitandoAndo.gif)
 
 ---
 
