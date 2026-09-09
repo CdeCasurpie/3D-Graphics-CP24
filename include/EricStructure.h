@@ -5,6 +5,9 @@
 #include <map>
 #include <cmath>
 #include <iostream>
+#include <queue>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 /**
  * @struct Vec3
@@ -117,105 +120,180 @@ public:
     }
 
     // =========================================================================
-    // --- TAREA 4: ALGORITMO DE SIMPLIFICACIÓN (LOD) ---
+    // --- TAREA 4: ALGORITMO DE SIMPLIFICACIÓN (QEM LOD) ---
     // =========================================================================
 
-    /**
-     * @brief Verifica si un half-edge sigue siendo válido (no ha sido eliminado).
-     * Como no podemos borrar elementos del array V sin romper los índices, 
-     * usaremos el valor V[he] = -1 (o UINT_MAX) para marcar triángulos borrados.
-     */
     bool isValid(int he) const {
         return (he >= 0 && he < V.size() && V[he] != (unsigned int)-1);
     }
 
+    // Almacena las matrices cuádricas (4x4) de cada vértice
+    std::vector<glm::mat4> Q;
+
     /**
-     * @brief Calcula el costo matemático de colapsar la arista 'he'.
-     * @param he Índice del half-edge a evaluar.
-     * @return El error estimado (Quadric Error Metric u otro).
+     * @brief Precalcula las métricas de error cuádrico (QEM) para todos los vértices.
+     * Siguiendo a Garland-Heckbert: Se calcula el plano de cada triángulo y se suma
+     * su matriz fundamental a los vértices que lo componen.
+     */
+    void computeInitialQuadrics() {
+        Q.assign(G.size(), glm::mat4(0.0f));
+
+        for (int i = 0; i < V.size(); i += 3) {
+            if (V[i] == (unsigned int)-1) continue; // Triángulo borrado
+
+            int v1 = V[i], v2 = V[i+1], v3 = V[i+2];
+            glm::vec3 p1(G[v1].Position.x, G[v1].Position.y, G[v1].Position.z);
+            glm::vec3 p2(G[v2].Position.x, G[v2].Position.y, G[v2].Position.z);
+            glm::vec3 p3(G[v3].Position.x, G[v3].Position.y, G[v3].Position.z);
+
+            // Calcular la normal del plano (Unitaria)
+            glm::vec3 n = glm::normalize(glm::cross(p2 - p1, p3 - p1));
+            // d = -dot(n, p)
+            float d = -glm::dot(n, p1);
+
+            // Matriz fundamental del plano: Kp = p * p^T
+            glm::vec4 p(n.x, n.y, n.z, d);
+            glm::mat4 Kp = glm::outerProduct(p, p);
+
+            // Sumar a los vértices del triángulo
+            Q[v1] += Kp;
+            Q[v2] += Kp;
+            Q[v3] += Kp;
+        }
+    }
+
+    /**
+     * @brief Calcula el costo QEM de colapsar la arista 'he'.
      */
     float calculateEdgeCost(int he) {
-        if (!isValid(he) || opposite(he) == -1) return 999999.0f; // Ignorar aristas frontera o borradas
+        if (!isValid(he) || opposite(he) == -1) return 999999.0f; // Fronteras o inválidos
         
         int v1_idx = V[prev(he)];
         int v2_idx = V[he];
 
-        // --- TU TAREA: IMPLEMENTAR QUADRIC ERROR METRIC (QEM) ---
-        // Por ahora, te dejo un costo "tonto" basado en la longitud de la arista (Shortest Edge First).
-        // Deberías cambiar esto por el error cuádrico de Garland-Heckbert basado en matrices 4x4.
+        glm::mat4 Q_new = Q[v1_idx] + Q[v2_idx];
         
-        Vec3 p1 = G[v1_idx].Position;
-        Vec3 p2 = G[v2_idx].Position;
-        float dist = sqrt(pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2) + pow(p2.z - p1.z, 2));
-        
-        return dist; 
+        // Evaluamos el error si pusiéramos el nuevo vértice en el punto medio
+        glm::vec3 p1(G[v1_idx].Position.x, G[v1_idx].Position.y, G[v1_idx].Position.z);
+        glm::vec3 p2(G[v2_idx].Position.x, G[v2_idx].Position.y, G[v2_idx].Position.z);
+        glm::vec3 v_mid = (p1 + p2) * 0.5f;
+        glm::vec4 v_mid4(v_mid, 1.0f);
+
+        // Costo = v^T * Q * v
+        float error = glm::dot(v_mid4, Q_new * v_mid4);
+        return error;
     }
 
     /**
-     * @brief Realiza un Edge Collapse topológico en L1. (Colapsa v2 hacia v1).
-     * @param he El half-edge que será colapsado.
+     * @brief Realiza el Edge Collapse topológico y actualiza la matriz del vértice.
      */
     void collapseEdge(int he) {
         if (!isValid(he) || opposite(he) == -1) return;
-
         int opp = opposite(he);
         
-        // Vértices de la arista
         int v1 = V[prev(he)];
         int v2 = V[he];
 
-        // 1. Mover físicamente v1 al centro entre v1 y v2 (o simplemente dejar a v1 donde está y hacer que absorba a v2)
+        // 1. Mover físicamente v1 al punto medio
         G[v1].Position = { (G[v1].Position.x + G[v2].Position.x) / 2.0f,
                            (G[v1].Position.y + G[v2].Position.y) / 2.0f,
                            (G[v1].Position.z + G[v2].Position.z) / 2.0f };
 
-        // 2. Todos los half-edges en la malla que apuntaban a 'v2', ahora deben apuntar a 'v1'.
-        // (Esto es ineficiente O(N), pero funciona perfecto para L1 sin estructuras adicionales).
+        // Actualizar la matriz QEM del nuevo vértice fusionado
+        Q[v1] = Q[v1] + Q[v2];
+
+        // 2. Redirigir punteros de v2 a v1
         for (size_t i = 0; i < V.size(); ++i) {
-            if (V[i] == v2) {
-                V[i] = v1;
-            }
+            if (V[i] == v2) V[i] = v1;
         }
 
-        // 3. Suturar los triángulos vecinos (Suturar los huecos dejados por la eliminación del rombo central)
-        int he_next = next(he);
-        int he_prev = prev(he);
-        int opp_next = next(opp);
-        int opp_prev = prev(opp);
+        // 3. Suturar los opuestos para cerrar el hueco
+        int he_next = next(he), he_prev = prev(he);
+        int opp_next = next(opp), opp_prev = prev(opp);
 
-        int O_he_next = opposite(he_next);
-        int O_he_prev = opposite(he_prev);
-        int O_opp_next = opposite(opp_next);
-        int O_opp_prev = opposite(opp_prev);
+        int O_he_next = opposite(he_next), O_he_prev = opposite(he_prev);
+        int O_opp_next = opposite(opp_next), O_opp_prev = opposite(opp_prev);
 
-        // Conectar los de la izquierda
         if (O_he_next != -1) O[O_he_next] = O_he_prev;
         if (O_he_prev != -1) O[O_he_prev] = O_he_next;
-
-        // Conectar los de la derecha
         if (O_opp_next != -1) O[O_opp_next] = O_opp_prev;
         if (O_opp_prev != -1) O[O_opp_prev] = O_opp_next;
 
-        // 4. Marcar los 6 half-edges de los dos triángulos (he y opp) como eliminados (-1)
-        int t1 = triangle(he);
-        int t2 = triangle(opp);
+        // 4. Marcar triángulos como borrados
+        int t1 = triangle(he), t2 = triangle(opp);
         for(int i = 0; i < 3; i++) {
             V[t1*3 + i] = (unsigned int)-1; O[t1*3 + i] = -1;
             V[t2*3 + i] = (unsigned int)-1; O[t2*3 + i] = -1;
         }
     }
 
+    struct EdgeRecord {
+        int he;
+        float cost;
+        bool operator>(const EdgeRecord& other) const { return cost > other.cost; }
+    };
+
     /**
-     * @brief Simplifica la malla iterativamente.
-     * @param targetTriangles Número de triángulos que queremos dejar al final.
+     * @brief Bucle principal de simplificación usando una Cola de Prioridad.
      */
     void simplifyMesh(int targetTriangles) {
-        // --- TU TAREA: IMPLEMENTAR EL BUCLE DE SIMPLIFICACIÓN ---
-        // 1. Recorrer todos los half-edges válidos y meterlos en una std::priority_queue ordenada por calculateEdgeCost().
-        // 2. Extraer el más barato, verificar que siga siendo válido, y llamar a collapseEdge().
-        // 3. (Opcional pero ideal): Recalcular el costo de los half-edges vecinos afectados y actualizar la cola.
-        // 4. Repetir hasta que queden 'targetTriangles'.
-        // 5. Finalmente, limpiar los arrays V y O para quitar los '-1' (Compactación de la memoria).
+        computeInitialQuadrics(); // Inicializar QEM
+
+        // Contar triángulos válidos actuales
+        int currentTriangles = 0;
+        for (size_t i = 0; i < V.size(); i += 3) {
+            if (V[i] != (unsigned int)-1) currentTriangles++;
+        }
+
+        std::priority_queue<EdgeRecord, std::vector<EdgeRecord>, std::greater<EdgeRecord>> pq;
+
+        // Llenar la cola inicial
+        for (int he = 0; he < V.size(); ++he) {
+            if (isValid(he) && opposite(he) != -1) {
+                // Para evitar duplicados, solo metemos half-edges donde he < opposite(he)
+                if (he < opposite(he)) {
+                    pq.push({he, calculateEdgeCost(he)});
+                }
+            }
+        }
+
+        // Bucle de colapsos
+        while (!pq.empty() && currentTriangles > targetTriangles) {
+            EdgeRecord record = pq.top();
+            pq.pop();
+
+            // Si el edge sigue siendo válido (no colapsó indirectamente)
+            if (isValid(record.he) && opposite(record.he) != -1) {
+                // Verificar si los vértices siguen existiendo y no forman triángulos degenerados
+                int v1 = V[prev(record.he)];
+                int v2 = V[record.he];
+                if (v1 != v2) { // Evita colapsar aristas ya fusionadas
+                    collapseEdge(record.he);
+                    currentTriangles -= 2; // Cada colapso elimina 2 triángulos (el diamante interior)
+                }
+            }
+        }
+        
+        compactArrays(); // Limpiar la memoria
+    }
+
+private:
+    /**
+     * @brief Remueve físicamente los -1 del array V y E para renderizar limpio.
+     */
+    void compactArrays() {
+        std::vector<unsigned int> newV;
+        for(size_t i = 0; i < V.size(); i += 3) {
+            if(V[i] != (unsigned int)-1) {
+                newV.push_back(V[i]);
+                newV.push_back(V[i+1]);
+                newV.push_back(V[i+2]);
+            }
+        }
+        V = newV;
+        // Al compactar V, el nivel O original ya no cuadra con los índices, 
+        // así que lo reconstruimos desde cero para que el render final esté estable.
+        buildLevel1();
     }
 
 private:

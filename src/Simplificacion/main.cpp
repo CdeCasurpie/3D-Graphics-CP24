@@ -23,8 +23,8 @@ int main() {
     simplifiedSphere.generateSphere(1.0f, 40, 40);
     
     // AQUÍ ES DONDE APLICAREMOS LA SIMPLIFICACIÓN
-    // Llama a tu función para que deje la malla, por ejemplo, en 500 triángulos.
-    // simplifiedSphere.simplifyMesh(500); 
+    // Llama a tu función para que deje la malla en 500 triángulos.
+    simplifiedSphere.simplifyMesh(500); 
 
     // --- VAO, VBO, EBO para la Esfera Original ---
     VAO vaoOriginal; vaoOriginal.bind();
