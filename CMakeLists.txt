@@ -33,7 +33,11 @@ target_link_libraries(Transformaciones glfw OpenGL::GL)
 add_executable(Camara src/Camara/main.cpp glad/src/gl.c)
 target_link_libraries(Camara glfw OpenGL::GL)
 
-# Target 7: Sierpinski - Tetrahedron 3D (Framework del profesor)
+# Target 7: Simplificacion (Quadric Error Metrics LOD)
+add_executable(Simplificacion src/Simplificacion/main.cpp glad/src/gl.c)
+target_link_libraries(Simplificacion glfw OpenGL::GL)
+
+# Target 8: Sierpinski - Tetrahedron 3D (Framework del profesor)
 find_package(gproshan QUIET)
 if(gproshan_FOUND)
     include_directories(SYSTEM ${gproshan_INCLUDE_DIR})

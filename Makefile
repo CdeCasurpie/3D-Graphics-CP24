@@ -1,4 +1,4 @@
-.PHONY: all HelloTriangle ChaosAlgorithm RecursiveAlgorithm SphereCHE Transformaciones Camara Tetrahedron clean run-HelloTriangle run-ChaosAlgorithm run-RecursiveAlgorithm run-SphereCHE run-Transformaciones run-Camara run-Tetrahedron
+.PHONY: all HelloTriangle ChaosAlgorithm RecursiveAlgorithm SphereCHE Transformaciones Camara Simplificacion Tetrahedron clean run-HelloTriangle run-ChaosAlgorithm run-RecursiveAlgorithm run-SphereCHE run-Transformaciones run-Camara run-Simplificacion run-Tetrahedron
 
 all:
 	@echo "Configuring CMake..."
@@ -30,6 +30,10 @@ Camara:
 	@cmake -B build
 	@cmake --build build --target Camara
 
+Simplificacion:
+	@cmake -B build
+	@cmake --build build --target Simplificacion
+
 Tetrahedron:
 	@cmake -B build
 	@cmake --build build --target Tetrahedron
@@ -51,6 +55,9 @@ run-Transformaciones: Transformaciones
 
 run-Camara: Camara
 	@./build/Camara
+
+run-Simplificacion: Simplificacion
+	@./build/Simplificacion
 
 run-Tetrahedron: Tetrahedron
 	@./build/Tetrahedron
