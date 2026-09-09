@@ -264,12 +264,21 @@ public:
 
             // Si el edge sigue siendo válido (no colapsó indirectamente)
             if (isValid(record.he) && opposite(record.he) != -1) {
-                // Verificar si los vértices siguen existiendo y no forman triángulos degenerados
                 int v1 = V[prev(record.he)];
                 int v2 = V[record.he];
+                
                 if (v1 != v2) { // Evita colapsar aristas ya fusionadas
+                    // TRUCO: Lazy Update. Como no podemos actualizar costos dentro de la priority_queue,
+                    // recalculamos el costo AHORA. Si cambió mucho (porque los vértices se movieron 
+                    // en colapsos anteriores), lo re-insertamos con el costo correcto y lo ignoramos por ahora.
+                    float currentCost = calculateEdgeCost(record.he);
+                    if (currentCost > record.cost + 0.0001f) {
+                        pq.push({record.he, currentCost});
+                        continue;
+                    }
+
                     collapseEdge(record.he);
-                    currentTriangles -= 2; // Cada colapso elimina 2 triángulos (el diamante interior)
+                    currentTriangles -= 2; // Cada colapso elimina 2 triángulos
                 }
             }
         }
