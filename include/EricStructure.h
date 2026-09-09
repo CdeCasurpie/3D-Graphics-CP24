@@ -116,6 +116,108 @@ public:
         buildLevel1();
     }
 
+    // =========================================================================
+    // --- TAREA 4: ALGORITMO DE SIMPLIFICACIÓN (LOD) ---
+    // =========================================================================
+
+    /**
+     * @brief Verifica si un half-edge sigue siendo válido (no ha sido eliminado).
+     * Como no podemos borrar elementos del array V sin romper los índices, 
+     * usaremos el valor V[he] = -1 (o UINT_MAX) para marcar triángulos borrados.
+     */
+    bool isValid(int he) const {
+        return (he >= 0 && he < V.size() && V[he] != (unsigned int)-1);
+    }
+
+    /**
+     * @brief Calcula el costo matemático de colapsar la arista 'he'.
+     * @param he Índice del half-edge a evaluar.
+     * @return El error estimado (Quadric Error Metric u otro).
+     */
+    float calculateEdgeCost(int he) {
+        if (!isValid(he) || opposite(he) == -1) return 999999.0f; // Ignorar aristas frontera o borradas
+        
+        int v1_idx = V[prev(he)];
+        int v2_idx = V[he];
+
+        // --- TU TAREA: IMPLEMENTAR QUADRIC ERROR METRIC (QEM) ---
+        // Por ahora, te dejo un costo "tonto" basado en la longitud de la arista (Shortest Edge First).
+        // Deberías cambiar esto por el error cuádrico de Garland-Heckbert basado en matrices 4x4.
+        
+        Vec3 p1 = G[v1_idx].Position;
+        Vec3 p2 = G[v2_idx].Position;
+        float dist = sqrt(pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2) + pow(p2.z - p1.z, 2));
+        
+        return dist; 
+    }
+
+    /**
+     * @brief Realiza un Edge Collapse topológico en L1. (Colapsa v2 hacia v1).
+     * @param he El half-edge que será colapsado.
+     */
+    void collapseEdge(int he) {
+        if (!isValid(he) || opposite(he) == -1) return;
+
+        int opp = opposite(he);
+        
+        // Vértices de la arista
+        int v1 = V[prev(he)];
+        int v2 = V[he];
+
+        // 1. Mover físicamente v1 al centro entre v1 y v2 (o simplemente dejar a v1 donde está y hacer que absorba a v2)
+        G[v1].Position = { (G[v1].Position.x + G[v2].Position.x) / 2.0f,
+                           (G[v1].Position.y + G[v2].Position.y) / 2.0f,
+                           (G[v1].Position.z + G[v2].Position.z) / 2.0f };
+
+        // 2. Todos los half-edges en la malla que apuntaban a 'v2', ahora deben apuntar a 'v1'.
+        // (Esto es ineficiente O(N), pero funciona perfecto para L1 sin estructuras adicionales).
+        for (size_t i = 0; i < V.size(); ++i) {
+            if (V[i] == v2) {
+                V[i] = v1;
+            }
+        }
+
+        // 3. Suturar los triángulos vecinos (Suturar los huecos dejados por la eliminación del rombo central)
+        int he_next = next(he);
+        int he_prev = prev(he);
+        int opp_next = next(opp);
+        int opp_prev = prev(opp);
+
+        int O_he_next = opposite(he_next);
+        int O_he_prev = opposite(he_prev);
+        int O_opp_next = opposite(opp_next);
+        int O_opp_prev = opposite(opp_prev);
+
+        // Conectar los de la izquierda
+        if (O_he_next != -1) O[O_he_next] = O_he_prev;
+        if (O_he_prev != -1) O[O_he_prev] = O_he_next;
+
+        // Conectar los de la derecha
+        if (O_opp_next != -1) O[O_opp_next] = O_opp_prev;
+        if (O_opp_prev != -1) O[O_opp_prev] = O_opp_next;
+
+        // 4. Marcar los 6 half-edges de los dos triángulos (he y opp) como eliminados (-1)
+        int t1 = triangle(he);
+        int t2 = triangle(opp);
+        for(int i = 0; i < 3; i++) {
+            V[t1*3 + i] = (unsigned int)-1; O[t1*3 + i] = -1;
+            V[t2*3 + i] = (unsigned int)-1; O[t2*3 + i] = -1;
+        }
+    }
+
+    /**
+     * @brief Simplifica la malla iterativamente.
+     * @param targetTriangles Número de triángulos que queremos dejar al final.
+     */
+    void simplifyMesh(int targetTriangles) {
+        // --- TU TAREA: IMPLEMENTAR EL BUCLE DE SIMPLIFICACIÓN ---
+        // 1. Recorrer todos los half-edges válidos y meterlos en una std::priority_queue ordenada por calculateEdgeCost().
+        // 2. Extraer el más barato, verificar que siga siendo válido, y llamar a collapseEdge().
+        // 3. (Opcional pero ideal): Recalcular el costo de los half-edges vecinos afectados y actualizar la cola.
+        // 4. Repetir hasta que queden 'targetTriangles'.
+        // 5. Finalmente, limpiar los arrays V y O para quitar los '-1' (Compactación de la memoria).
+    }
+
 private:
     /**
      * @brief Construye el arreglo 'O' (Opposites) emparejando las half-edges.

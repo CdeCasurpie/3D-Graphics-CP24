@@ -18,9 +18,13 @@ int main() {
     EricStructure originalSphere;
     originalSphere.generateSphere(1.0f, 40, 40);
 
-    // 2. Esfera Simplificada (Por ahora es igual a la original, luego le aplicaremos tu algoritmo)
+    // 2. Esfera Simplificada
     EricStructure simplifiedSphere;
     simplifiedSphere.generateSphere(1.0f, 40, 40);
+    
+    // AQUÍ ES DONDE APLICAREMOS LA SIMPLIFICACIÓN
+    // Llama a tu función para que deje la malla, por ejemplo, en 500 triángulos.
+    // simplifiedSphere.simplifyMesh(500); 
 
     // --- VAO, VBO, EBO para la Esfera Original ---
     VAO vaoOriginal; vaoOriginal.bind();
