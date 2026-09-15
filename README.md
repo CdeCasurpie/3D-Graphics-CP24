@@ -13,18 +13,21 @@ This repository contains the assignments and a custom OpenGL framework developed
 
 * `include/`: Contains the core framework wrappers (`Window`, `Shader`, `VAO`, `VBO`, `EBO`) and the data structure `EricStructure.h` (CHE).
 * `src/`: Contains the specific implementation for each assignment.
-  * `Transformaciones/`: **(Current Exercise)** Implementation of MVP matrices (GLM), featuring a rotating cube, an orbiting sphere, and 4-point real-time diffuse lighting.
+  * `Simplificacion/`: **(Current Exercise - Task 04)** Level of Detail (LOD) using Quadric Error Metrics (QEM) and Edge Collapse on a CHE.
+  * `Transformaciones/`: Implementation of MVP matrices (GLM), featuring a rotating cube, an orbiting sphere, and 4-point real-time diffuse lighting.
   * `SphereCHE/`: Implementation of the Compact Half-Edge structure for rendering parametric spheres and cubes.
   * `Sierpinski/`: 2D fractal rendering algorithms (Chaos Game and Recursive).
   * `HelloTriangle/`: Basic OpenGL setup and rendering pipeline test.
 
 ---
 
-## 🎥 Current Exercise Demo: Transformations & Orbits
+## 🎥 Current Exercise Demo: Mesh Simplification (QEM LOD)
 
-This module showcases the Model-View-Projection architecture. A central cube rotates on its own axes while a parametric sphere orbits around it, illuminated by four static colored light sources.
+This module implements the Garland-Heckbert Quadric Error Metrics algorithm for mesh decimation. It performs edge collapses directly on the Level 1 Compact Half-Edge (CHE) structure while maintaining topological integrity via lazy updates.
 
-![Orbit Demo Video](src/Transformaciones/OrbitandoAndo.gif)
+![LOD Simplification Result](src/Simplificacion/LOD_Result.png)
+
+*Final Triangle Count: 500 | Average Error (Distance to original r=1 surface): 0.0026*
 
 ---
 
