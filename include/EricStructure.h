@@ -129,9 +129,10 @@ public:
         float sectorStep = 2 * M_PI / sectorCount;
         float stackStep = 2 * M_PI / stackCount;
 
-        for(int i = 0; i <= stackCount; ++i) {
+        // Generar vértices SIN duplicar la costura final
+        for(int i = 0; i < stackCount; ++i) {
             float u = i * stackStep;
-            for(int j = 0; j <= sectorCount; ++j) {
+            for(int j = 0; j < sectorCount; ++j) {
                 float v = j * sectorStep;
 
                 float current_r = r;
@@ -151,13 +152,19 @@ public:
             }
         }
 
+        // Generar topología completamente unida (soldada)
         for(int i = 0; i < stackCount; ++i) {
-            int k1 = i * (sectorCount + 1);
-            int k2 = k1 + sectorCount + 1;
+            int next_i = (i + 1) % stackCount;
+            for(int j = 0; j < sectorCount; ++j) {
+                int next_j = (j + 1) % sectorCount;
+                
+                int k1 = i * sectorCount + j;
+                int k1_next = i * sectorCount + next_j;
+                int k2 = next_i * sectorCount + j;
+                int k2_next = next_i * sectorCount + next_j;
 
-            for(int j = 0; j < sectorCount; ++j, ++k1, ++k2) {
-                V.push_back(k1); V.push_back(k2); V.push_back(k1 + 1);
-                V.push_back(k1 + 1); V.push_back(k2); V.push_back(k2 + 1);
+                V.push_back(k1); V.push_back(k2); V.push_back(k1_next);
+                V.push_back(k1_next); V.push_back(k2); V.push_back(k2_next);
             }
         }
 

@@ -108,7 +108,8 @@ int main() {
         glfwGetFramebufferSize(window.glfwWindow, &width, &height);
         float aspect = (float)width / (float)height;
 
-        glm::mat4 view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        // Elevar la camara en Y para poder ver el hueco del toroide
+        glm::mat4 view = glm::lookAt(glm::vec3(camX, 2.5f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
         glm::mat4 model = glm::mat4(1.0f);
 
