@@ -286,6 +286,138 @@ public:
         compactArrays(); // Limpiar la memoria
     }
 
+    // =========================================================================
+    // --- TAREA 6: FAST MARCHING ALGORITHM (FMM) ---
+    // =========================================================================
+
+    /**
+     * @brief Resuelve la ecuación Eikonal en un triángulo para aproximar la distancia superficial.
+     * Basado en la Sección 3 del paper de Parametric Surfaces.
+     */
+    float eikonalUpdate(int v0, int v1, int v2, float t1, float t2) {
+        Vec3 p0 = G[v0].Position;
+        Vec3 p1 = G[v1].Position;
+        Vec3 p2 = G[v2].Position;
+
+        glm::vec3 x1(p1.x - p0.x, p1.y - p0.y, p1.z - p0.z);
+        glm::vec3 x2(p2.x - p0.x, p2.y - p0.y, p2.z - p0.z);
+
+        // Matriz X^T * X
+        float a = glm::dot(x1, x1);
+        float b = glm::dot(x1, x2);
+        float c = glm::dot(x2, x2);
+        float det = a * c - b * b;
+
+        // Fallback a Dijkstra normal si el triángulo está muy degenerado
+        if (det < 1e-6f) {
+            return std::min(t1 + sqrt(a), t2 + sqrt(c));
+        }
+
+        // Matriz inversa Q = (X^T * X)^-1
+        float invDet = 1.0f / det;
+        float q11 = c * invDet;
+        float q12 = -b * invDet;
+        float q21 = -b * invDet;
+        float q22 = a * invDet;
+
+        // Ecuación cuadrática: A * t0^2 - 2B * t0 + C - 1 = 0
+        float A = q11 + q12 + q21 + q22;
+        float B = t1 * (q11 + q21) + t2 * (q12 + q22);
+        float C = t1 * t1 * q11 + t1 * t2 * q12 + t2 * t1 * q21 + t2 * t2 * q22;
+
+        float discriminant = B * B - A * (C - 1.0f);
+
+        if (discriminant >= 0.0f) {
+            float t0 = (B + sqrt(discriminant)) / A;
+
+            // Condición de consistencia: Q * (t - t0*1) < 0
+            float u1 = t1 - t0;
+            float u2 = t2 - t0;
+            float check1 = q11 * u1 + q12 * u2;
+            float check2 = q21 * u1 + q22 * u2;
+
+            if (check1 < 0.0f && check2 < 0.0f) {
+                return t0; // El frente de onda viene desde adentro del triángulo. ¡Éxito!
+            }
+        }
+
+        // Fallback a Dijkstra normal si falla la condición (Dijkstra por los bordes)
+        return std::min(t1 + sqrt(a), t2 + sqrt(c));
+    }
+
+    struct FMMNode {
+        int vertex;
+        float distance;
+        bool operator>(const FMMNode& other) const { return distance > other.distance; }
+    };
+
+    /**
+     * @brief Calcula las distancias geodésicas desde un vértice origen a toda la malla.
+     */
+    std::vector<float> fastMarching(int sourceVertex) {
+        enum State { FAR, FRONT, FROZEN };
+        std::vector<float> distances(G.size(), 999999.0f);
+        std::vector<State> states(G.size(), FAR);
+
+        std::priority_queue<FMMNode, std::vector<FMMNode>, std::greater<FMMNode>> pq;
+
+        distances[sourceVertex] = 0.0f;
+        states[sourceVertex] = FRONT;
+        pq.push({sourceVertex, 0.0f});
+
+        // Pre-calcular conectividad de vértices para iterar rápido (Vecinos y Triángulos)
+        // En L1 esto cuesta O(N) una vez, lo que acelera muchísimo el bucle de Dijkstra.
+        std::vector<std::vector<int>> vertexToHalfEdges(G.size());
+        for (int i = 0; i < V.size(); ++i) {
+            if (V[i] != (unsigned int)-1) {
+                vertexToHalfEdges[V[i]].push_back(i);
+            }
+        }
+
+        while (!pq.empty()) {
+            FMMNode current = pq.top();
+            pq.pop();
+
+            int u = current.vertex;
+
+            // Si ya lo congelamos antes (por un update lazy más barato), ignoramos
+            if (states[u] == FROZEN) continue;
+            states[u] = FROZEN;
+
+            // Para cada half-edge que apunta o sale de 'u'
+            for (int he : vertexToHalfEdges[u]) {
+                // 'he' es un half-edge tal que V[he] == u.
+                // Los otros dos vértices del triángulo son:
+                int he_prev = prev(he);
+                int he_next = next(he);
+                int v1 = V[he_prev]; // El anterior
+                int v2 = V[he_next]; // El siguiente
+
+                // Si v1 no está congelado, podemos intentar actualizarlo usando 'u' y 'v2'
+                if (states[v1] != FROZEN && states[v2] == FROZEN) {
+                    float newDist = eikonalUpdate(v1, u, v2, distances[u], distances[v2]);
+                    if (newDist < distances[v1]) {
+                        distances[v1] = newDist;
+                        states[v1] = FRONT;
+                        pq.push({v1, newDist});
+                    }
+                }
+                
+                // Si v2 no está congelado, podemos intentar actualizarlo usando 'u' y 'v1'
+                if (states[v2] != FROZEN && states[v1] == FROZEN) {
+                    float newDist = eikonalUpdate(v2, u, v1, distances[u], distances[v1]);
+                    if (newDist < distances[v2]) {
+                        distances[v2] = newDist;
+                        states[v2] = FRONT;
+                        pq.push({v2, newDist});
+                    }
+                }
+            }
+        }
+
+        return distances;
+    }
+
 private:
     /**
      * @brief Remueve físicamente los -1 del array V y E para renderizar limpio.

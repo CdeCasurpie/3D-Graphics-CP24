@@ -65,3 +65,5 @@ run-Tetrahedron: Tetrahedron
 clean:
 	@echo "Cleaning build directory..."
 	@rm -rf build
+run-FastMarching:
+	cd build && cmake .. && make FastMarching && ./FastMarching
