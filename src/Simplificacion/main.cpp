@@ -26,6 +26,31 @@ int main() {
     // Llama a tu función para que deje la malla en 500 triángulos.
     simplifiedSphere.simplifyMesh(500); 
 
+    // --- EVALUAR EL ERROR CONTRA LA MALLA ORIGINAL ---
+    // Como la original es una esfera perfecta de radio 1.0 en el origen, 
+    // el error de la malla simplificada es qué tan lejos están sus vértices de la distancia 1.0
+    float totalError = 0.0f;
+    int validVertices = 0;
+    std::vector<bool> visited(simplifiedSphere.G.size(), false);
+    for (size_t i = 0; i < simplifiedSphere.V.size(); ++i) {
+        if (simplifiedSphere.V[i] != (unsigned int)-1) {
+            int v_idx = simplifiedSphere.V[i];
+            if (!visited[v_idx]) {
+                visited[v_idx] = true;
+                Vec3 p = simplifiedSphere.G[v_idx].Position;
+                float dist = sqrt(p.x*p.x + p.y*p.y + p.z*p.z);
+                totalError += std::abs(dist - 1.0f);
+                validVertices++;
+            }
+        }
+    }
+    std::cout << "==========================================\n";
+    std::cout << " EVALUACION DE ERROR (Task 04)\n";
+    std::cout << "==========================================\n";
+    std::cout << " Triangulos finales: 500\n";
+    std::cout << " Error promedio por vertice (Distancia a la superficie original): " << (totalError / validVertices) << "\n";
+    std::cout << "==========================================\n";
+
     // --- VAO, VBO, EBO para la Esfera Original ---
     VAO vaoOriginal; vaoOriginal.bind();
     VBO vboOriginal((float*) originalSphere.G.data(), originalSphere.G.size() * sizeof(VertexData));
