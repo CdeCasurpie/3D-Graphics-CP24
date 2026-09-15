@@ -386,14 +386,31 @@ public:
 
             // Para cada half-edge que apunta o sale de 'u'
             for (int he : vertexToHalfEdges[u]) {
-                // 'he' es un half-edge tal que V[he] == u.
-                // Los otros dos vértices del triángulo son:
                 int he_prev = prev(he);
                 int he_next = next(he);
-                int v1 = V[he_prev]; // El anterior
-                int v2 = V[he_next]; // El siguiente
+                int v1 = V[he_prev]; 
+                int v2 = V[he_next]; 
 
-                // Si v1 no está congelado, podemos intentar actualizarlo usando 'u' y 'v2'
+                // 1. Siempre permitimos que la onda viaje por la arista (1D Dijkstra normal)
+                // Esto es crucial para que la onda "arranque" desde un solo vértice origen.
+                Vec3 pu = G[u].Position, pv1 = G[v1].Position, pv2 = G[v2].Position;
+                
+                float edgeDist1 = distances[u] + sqrt(pow(pu.x-pv1.x,2) + pow(pu.y-pv1.y,2) + pow(pu.z-pv1.z,2));
+                if (edgeDist1 < distances[v1]) {
+                    distances[v1] = edgeDist1;
+                    states[v1] = FRONT;
+                    pq.push({v1, edgeDist1});
+                }
+
+                float edgeDist2 = distances[u] + sqrt(pow(pu.x-pv2.x,2) + pow(pu.y-pv2.y,2) + pow(pu.z-pv2.z,2));
+                if (edgeDist2 < distances[v2]) {
+                    distances[v2] = edgeDist2;
+                    states[v2] = FRONT;
+                    pq.push({v2, edgeDist2});
+                }
+
+                // 2. Si ya hay DOS vértices congelados en el triángulo, aplicamos Fast Marching (Eikonal 2D)
+                // Esto encontrará un atajo por el medio de la cara del triángulo, reduciendo la distancia.
                 if (states[v1] != FROZEN && states[v2] == FROZEN) {
                     float newDist = eikonalUpdate(v1, u, v2, distances[u], distances[v2]);
                     if (newDist < distances[v1]) {
@@ -403,7 +420,6 @@ public:
                     }
                 }
                 
-                // Si v2 no está congelado, podemos intentar actualizarlo usando 'u' y 'v1'
                 if (states[v2] != FROZEN && states[v1] == FROZEN) {
                     float newDist = eikonalUpdate(v2, u, v1, distances[u], distances[v1]);
                     if (newDist < distances[v2]) {

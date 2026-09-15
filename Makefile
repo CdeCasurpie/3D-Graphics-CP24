@@ -66,4 +66,4 @@ clean:
 	@echo "Cleaning build directory..."
 	@rm -rf build
 run-FastMarching:
-	cd build && cmake .. && make FastMarching && ./FastMarching
+	cmake -B build && cmake --build build --target FastMarching && ./build/FastMarching
