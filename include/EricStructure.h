@@ -119,6 +119,51 @@ public:
         buildLevel1();
     }
 
+    /**
+     * @brief Genera un Toroide (Dona) paramétrico. Puede tener baches (bumped) para pruebas.
+     */
+    void generateTorus(float R, float r, int sectorCount, int stackCount, bool bumped = false) {
+        G.clear();
+        V.clear();
+
+        float sectorStep = 2 * M_PI / sectorCount;
+        float stackStep = 2 * M_PI / stackCount;
+
+        for(int i = 0; i <= stackCount; ++i) {
+            float u = i * stackStep;
+            for(int j = 0; j <= sectorCount; ++j) {
+                float v = j * sectorStep;
+
+                float current_r = r;
+                if (bumped) {
+                    current_r += 0.05f * sinf(8.0f * u) * cosf(16.0f * v);
+                }
+
+                float x = (R + current_r * cosf(u)) * cosf(v);
+                float y = current_r * sinf(u);
+                float z = (R + current_r * cosf(u)) * sinf(v);
+                
+                float nx = cosf(u) * cosf(v);
+                float ny = sinf(u);
+                float nz = cosf(u) * sinf(v);
+
+                G.push_back({{x, y, z}, {nx, ny, nz}});
+            }
+        }
+
+        for(int i = 0; i < stackCount; ++i) {
+            int k1 = i * (sectorCount + 1);
+            int k2 = k1 + sectorCount + 1;
+
+            for(int j = 0; j < sectorCount; ++j, ++k1, ++k2) {
+                V.push_back(k1); V.push_back(k2); V.push_back(k1 + 1);
+                V.push_back(k1 + 1); V.push_back(k2); V.push_back(k2 + 1);
+            }
+        }
+
+        buildLevel1();
+    }
+
     // =========================================================================
     // --- TAREA 4: ALGORITMO DE SIMPLIFICACIÓN (QEM LOD) ---
     // =========================================================================

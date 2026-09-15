@@ -58,7 +58,8 @@ int main() {
     Shader shader("src/FastMarching/shader.vert", "src/FastMarching/shader.frag");
 
     EricStructure mesh;
-    mesh.generateSphere(1.0f, 40, 40);
+    // Generar el famoso "Bumped Torus" (Toroide con baches) mencionado en el paper
+    mesh.generateTorus(1.0f, 0.4f, 80, 80, true);
 
     std::vector<float> distances = mesh.fastMarching(0);
     float maxDist = 0.0f;

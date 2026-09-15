@@ -21,11 +21,7 @@ void main()
     } else {
         // Mapear distancia a color
         float normalizedDist = Distance / maxDistance;
-        
-        // Repetir el color map (isolineas) para que parezcan contornos
-        float iso = fract(normalizedDist * 10.0);
         vec3 baseColor = getColormap(normalizedDist);
-        if (iso < 0.05) baseColor = vec3(0.0);
 
         FragColor = vec4(baseColor, 1.0); // Colores planos, sin luces
     }
