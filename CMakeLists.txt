@@ -46,3 +46,8 @@ if(gproshan_FOUND)
 endif()
 add_executable(FastMarching src/FastMarching/main.cpp glad/src/gl.c)
 target_link_libraries(FastMarching glfw OpenGL::GL)
+
+# Target 9: Arcball Camera (Quaternions + Mouse Drag/Scroll)
+add_executable(ArcballCamera src/ArcballCamera/main.cpp glad/src/gl.c)
+target_link_libraries(ArcballCamera glfw OpenGL::GL)
+

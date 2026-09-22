@@ -11,9 +11,12 @@ This repository contains the assignments and a custom OpenGL framework developed
 
 ## Project Structure
 
-* `include/`: Contains the core framework wrappers (`Window`, `Shader`, `VAO`, `VBO`, `EBO`) and the data structure `EricStructure.h` (CHE).
+* `include/`: Contains the core framework wrappers (`Window`, `Shader`, `VAO`, `VBO`, `EBO`, `Camera`) and the data structure `EricStructure.h` (CHE).
 * `src/`: Contains the specific implementation for each assignment.
-  * `Simplificacion/`: **(Current Exercise - Task 04)** Level of Detail (LOD) using Quadric Error Metrics (QEM) and Edge Collapse on a CHE.
+  * `ArcballCamera/`: **(Task 09)** Arcball camera interaction with quaternions, mouse drag, scroll zoom, and animated orbit mode.
+  * `Camara/`: Camera placement and movement exploration.
+  * `FastMarching/`: Fast Marching Method on meshes for geodesic distance calculation.
+  * `Simplificacion/`: Level of Detail (LOD) using Quadric Error Metrics (QEM) and Edge Collapse on a CHE.
   * `Transformaciones/`: Implementation of MVP matrices (GLM), featuring a rotating cube, an orbiting sphere, and 4-point real-time diffuse lighting.
   * `SphereCHE/`: Implementation of the Compact Half-Edge structure for rendering parametric spheres and cubes.
   * `Sierpinski/`: 2D fractal rendering algorithms (Chaos Game and Recursive).
