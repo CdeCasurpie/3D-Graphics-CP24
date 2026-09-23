@@ -13,7 +13,8 @@ This repository contains the assignments and a custom OpenGL framework developed
 
 * `include/`: Contains the core framework wrappers (`Window`, `Shader`, `VAO`, `VBO`, `EBO`, `Camera`) and the data structure `EricStructure.h` (CHE).
 * `src/`: Contains the specific implementation for each assignment.
-  * `ArcballCamera/`: **(Task 09)** Arcball camera interaction with quaternions, mouse drag, scroll zoom, and animated orbit mode.
+  * `Iluminacion/`: **(Task 10)** Comparison of Phong & Blinn-Phong illumination models with Gouraud & Phong shading.
+  * `ArcballCamera/`: Arcball camera interaction with quaternions, mouse drag, scroll zoom, and animated orbit mode.
   * `Camara/`: Camera placement and movement exploration.
   * `FastMarching/`: Fast Marching Method on meshes for geodesic distance calculation.
   * `Simplificacion/`: Level of Detail (LOD) using Quadric Error Metrics (QEM) and Edge Collapse on a CHE.

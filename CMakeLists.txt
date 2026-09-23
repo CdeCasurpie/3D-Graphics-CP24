@@ -51,3 +51,8 @@ target_link_libraries(FastMarching glfw OpenGL::GL)
 add_executable(ArcballCamera src/ArcballCamera/main.cpp glad/src/gl.c)
 target_link_libraries(ArcballCamera glfw OpenGL::GL)
 
+# Target 10: Iluminacion (Phong & Blinn-Phong con Gouraud & Phong Shading)
+add_executable(Iluminacion src/Iluminacion/main.cpp glad/src/gl.c)
+target_link_libraries(Iluminacion glfw OpenGL::GL)
+
+

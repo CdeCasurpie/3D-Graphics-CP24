@@ -1,4 +1,4 @@
-.PHONY: all HelloTriangle ChaosAlgorithm RecursiveAlgorithm SphereCHE Transformaciones Camara Simplificacion Tetrahedron ArcballCamera clean run-HelloTriangle run-ChaosAlgorithm run-RecursiveAlgorithm run-SphereCHE run-Transformaciones run-Camara run-Simplificacion run-Tetrahedron run-ArcballCamera
+.PHONY: all HelloTriangle ChaosAlgorithm RecursiveAlgorithm SphereCHE Transformaciones Camara Simplificacion Tetrahedron ArcballCamera Iluminacion clean run-HelloTriangle run-ChaosAlgorithm run-RecursiveAlgorithm run-SphereCHE run-Transformaciones run-Camara run-Simplificacion run-Tetrahedron run-ArcballCamera run-Iluminacion
 
 all:
 	@echo "Configuring CMake..."
@@ -73,6 +73,14 @@ ArcballCamera:
 run-ArcballCamera: ArcballCamera
 	@./build/ArcballCamera
 
+Iluminacion:
+	@cmake -B build
+	@cmake --build build --target Iluminacion
+
+run-Iluminacion: Iluminacion
+	@./build/Iluminacion
+
 run-FastMarching:
 	cmake -B build && cmake --build build --target FastMarching && ./build/FastMarching
+
 
