@@ -58,9 +58,11 @@ El proyecto implementa dos programas de shaders completos:
 
 ## 3. Demostración Visual
 
-![Resultado de Iluminación](iluminacion_result.png)
+![Demostración en Video](iluminacion_demo.gif)
 
-*Malla esférica con iluminación Blinn-Phong por fragmento y fuente de luz puntual orbitando alrededor.*
+*Grabación interactiva mostrando la alternancia en vivo entre Gouraud Shading y Phong Shading, el modelo Phong clásico vs. Blinn-Phong, el ajuste dinámico de la fuente de luz y del exponente especular, y la navegación con la cámara Arcball.*
+
+![Resultado Estático](iluminacion_result.png)
 
 ---
 
