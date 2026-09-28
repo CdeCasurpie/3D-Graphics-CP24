@@ -1,4 +1,4 @@
-.PHONY: all HelloTriangle ChaosAlgorithm RecursiveAlgorithm SphereCHE Transformaciones Camara Simplificacion Tetrahedron ArcballCamera Iluminacion ShadowMapping clean run-HelloTriangle run-ChaosAlgorithm run-RecursiveAlgorithm run-SphereCHE run-Transformaciones run-Camara run-Simplificacion run-Tetrahedron run-ArcballCamera run-Iluminacion run-ShadowMapping
+.PHONY: all HelloTriangle ChaosAlgorithm RecursiveAlgorithm SphereCHE Transformaciones Camara Simplificacion Tetrahedron ArcballCamera Iluminacion ShadowMapping TexturesAndMaps clean run-HelloTriangle run-ChaosAlgorithm run-RecursiveAlgorithm run-SphereCHE run-Transformaciones run-Camara run-Simplificacion run-Tetrahedron run-ArcballCamera run-Iluminacion run-ShadowMapping run-TexturesAndMaps
 
 all:
 	@echo "Configuring CMake..."
@@ -89,3 +89,11 @@ ShadowMapping:
 
 run-ShadowMapping: ShadowMapping
 	@./build/ShadowMapping
+
+TexturesAndMaps:
+	@cmake -B build
+	@cmake --build build --target TexturesAndMaps
+
+run-TexturesAndMaps: TexturesAndMaps
+	@./build/TexturesAndMaps
+

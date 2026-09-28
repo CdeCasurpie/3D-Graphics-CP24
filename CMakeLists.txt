@@ -58,3 +58,7 @@ target_link_libraries(Iluminacion glfw OpenGL::GL)
 # Target 11: Shadow Mapping (2-pass)
 add_executable(ShadowMapping src/ShadowMapping/main.cpp glad/src/gl.c)
 target_link_libraries(ShadowMapping glfw OpenGL::GL)
+
+# Target 12: Textures & Lighting Maps
+add_executable(TexturesAndMaps src/TexturesAndMaps/main.cpp glad/src/gl.c)
+target_link_libraries(TexturesAndMaps glfw OpenGL::GL)

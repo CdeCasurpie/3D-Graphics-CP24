@@ -18,12 +18,21 @@ struct Vec3 {
 };
 
 /**
+ * @struct Vec2
+ * @brief Simple 2D vector for texture coordinates.
+ */
+struct Vec2 {
+    float x, y;
+};
+
+/**
  * @struct VertexData
- * @brief Packs Position (X,Y,Z) and Normal (NX,NY,NZ) to be sent to the GPU.
+ * @brief Packs Position (X,Y,Z), Normal (NX,NY,NZ) and TexCoords (U,V) to be sent to the GPU.
  */
 struct VertexData {
     Vec3 Position;
     Vec3 Normal;
+    Vec2 TexCoords;
 };
 
 /**
@@ -57,6 +66,63 @@ public:
     int opposite(int he) const { return O[he]; }
 
     /**
+     * @brief Generates a cube with 24 vertices for proper texture and normal mapping per face.
+     *        Note: This breaks the CHE manifold property (creates 6 disconnected quads).
+     * @param size Size of the cube.
+     */
+    void generateTexturedCube(float size) {
+        G.clear(); V.clear(); O.clear();
+        float h = size / 2.0f;
+        
+        // Front face (Z = h)
+        G.push_back({{-h, -h,  h}, {0, 0, 1}, {0.0f, 0.0f}}); // 0
+        G.push_back({{ h, -h,  h}, {0, 0, 1}, {1.0f, 0.0f}}); // 1
+        G.push_back({{ h,  h,  h}, {0, 0, 1}, {1.0f, 1.0f}}); // 2
+        G.push_back({{-h,  h,  h}, {0, 0, 1}, {0.0f, 1.0f}}); // 3
+        
+        // Right face (X = h)
+        G.push_back({{ h, -h,  h}, {1, 0, 0}, {0.0f, 0.0f}}); // 4
+        G.push_back({{ h, -h, -h}, {1, 0, 0}, {1.0f, 0.0f}}); // 5
+        G.push_back({{ h,  h, -h}, {1, 0, 0}, {1.0f, 1.0f}}); // 6
+        G.push_back({{ h,  h,  h}, {1, 0, 0}, {0.0f, 1.0f}}); // 7
+        
+        // Back face (Z = -h)
+        G.push_back({{ h, -h, -h}, {0, 0, -1}, {0.0f, 0.0f}}); // 8
+        G.push_back({{-h, -h, -h}, {0, 0, -1}, {1.0f, 0.0f}}); // 9
+        G.push_back({{-h,  h, -h}, {0, 0, -1}, {1.0f, 1.0f}}); // 10
+        G.push_back({{ h,  h, -h}, {0, 0, -1}, {0.0f, 1.0f}}); // 11
+        
+        // Left face (X = -h)
+        G.push_back({{-h, -h, -h}, {-1, 0, 0}, {0.0f, 0.0f}}); // 12
+        G.push_back({{-h, -h,  h}, {-1, 0, 0}, {1.0f, 0.0f}}); // 13
+        G.push_back({{-h,  h,  h}, {-1, 0, 0}, {1.0f, 1.0f}}); // 14
+        G.push_back({{-h,  h, -h}, {-1, 0, 0}, {0.0f, 1.0f}}); // 15
+        
+        // Top face (Y = h)
+        G.push_back({{-h,  h,  h}, {0, 1, 0}, {0.0f, 0.0f}}); // 16
+        G.push_back({{ h,  h,  h}, {0, 1, 0}, {1.0f, 0.0f}}); // 17
+        G.push_back({{ h,  h, -h}, {0, 1, 0}, {1.0f, 1.0f}}); // 18
+        G.push_back({{-h,  h, -h}, {0, 1, 0}, {0.0f, 1.0f}}); // 19
+        
+        // Bottom face (Y = -h)
+        G.push_back({{-h, -h, -h}, {0, -1, 0}, {0.0f, 0.0f}}); // 20
+        G.push_back({{ h, -h, -h}, {0, -1, 0}, {1.0f, 0.0f}}); // 21
+        G.push_back({{ h, -h,  h}, {0, -1, 0}, {1.0f, 1.0f}}); // 22
+        G.push_back({{-h, -h,  h}, {0, -1, 0}, {0.0f, 1.0f}}); // 23
+
+        unsigned int indices[] = {
+            0, 1, 2,  2, 3, 0, // Front
+            4, 5, 6,  6, 7, 4, // Right
+            8, 9, 10, 10, 11, 8, // Back
+            12, 13, 14, 14, 15, 12, // Left
+            16, 17, 18, 18, 19, 16, // Top
+            20, 21, 22, 22, 23, 20  // Bottom
+        };
+        for (int i = 0; i < 36; ++i) V.push_back(indices[i]);
+        buildLevel1();
+    }
+
+    /**
      * @brief Genera un cubo parametricamente y construye el Nivel 1.
      * @param size Tamano de las aristas del cubo.
      */
@@ -64,14 +130,14 @@ public:
         G.clear(); V.clear(); O.clear();
         float h = size / 2.0f;
         
-        G.push_back({{-h, -h,  h}, {-1, -1,  1}}); // 0
-        G.push_back({{ h, -h,  h}, { 1, -1,  1}}); // 1
-        G.push_back({{ h,  h,  h}, { 1,  1,  1}}); // 2
-        G.push_back({{-h,  h,  h}, {-1,  1,  1}}); // 3
-        G.push_back({{-h, -h, -h}, {-1, -1, -1}}); // 4
-        G.push_back({{ h, -h, -h}, { 1, -1, -1}}); // 5
-        G.push_back({{ h,  h, -h}, { 1,  1, -1}}); // 6
-        G.push_back({{-h,  h, -h}, {-1,  1, -1}}); // 7
+        G.push_back({{-h, -h,  h}, {-1, -1,  1}, {0, 0}}); // 0
+        G.push_back({{ h, -h,  h}, { 1, -1,  1}, {0, 0}}); // 1
+        G.push_back({{ h,  h,  h}, { 1,  1,  1}, {0, 0}}); // 2
+        G.push_back({{-h,  h,  h}, {-1,  1,  1}, {0, 0}}); // 3
+        G.push_back({{-h, -h, -h}, {-1, -1, -1}, {0, 0}}); // 4
+        G.push_back({{ h, -h, -h}, { 1, -1, -1}, {0, 0}}); // 5
+        G.push_back({{ h,  h, -h}, { 1,  1, -1}, {0, 0}}); // 6
+        G.push_back({{-h,  h, -h}, {-1,  1, -1}, {0, 0}}); // 7
 
         unsigned int indices[] = {
             0, 1, 2,  2, 3, 0, // Front
@@ -104,7 +170,9 @@ public:
                 float z = radius * sin(theta) * sin(phi);
                 
                 Vec3 normal = {x / radius, y / radius, z / radius};
-                G.push_back({{x, y, z}, normal});
+                float u = (float)j / sectors;
+                float v = (float)i / stacks;
+                G.push_back({{x, y, z}, normal, {u, v}});
             }
         }
 
@@ -148,7 +216,10 @@ public:
                 float ny = sinf(u);
                 float nz = cosf(u) * sinf(v);
 
-                G.push_back({{x, y, z}, {nx, ny, nz}});
+                float texU = (float)j / sectorCount;
+                float texV = (float)i / stackCount;
+
+                G.push_back({{x, y, z}, {nx, ny, nz}, {texU, texV}});
             }
         }
 
