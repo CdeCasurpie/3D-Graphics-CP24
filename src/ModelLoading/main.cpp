@@ -50,18 +50,24 @@ int main() {
     Shader textureShader("src/TexturesAndMaps/texture.vert", "src/TexturesAndMaps/texture.frag");
     Shader lightShader("src/ShadowMapping/light.vert", "src/ShadowMapping/light.frag");
 
-    // Set camera distance to 30 and target to the origin (since the model is centered)
+    // =========================================================================
+    // 1. Camera Initialization
+    // =========================================================================
     Camera camera(30.0f, glm::vec3(0.0f, 0.0f, 0.0f));
     camera.registerCallbacks(window.glfwWindow);
 
     std::cout << "TAREA 13: Carga de Modelos OBJ (tinyobjloader)\n";
 
-    // 1. Load Model (User's thesis OBJ, now centered locally)
+    // =========================================================================
+    // 2. Model Loading (Thesis Procedural Building)
+    // =========================================================================
     Model loadedModel("assets/models/thesis/03_corner.obj");
 
-    // 2. Setup Light Marker (small sphere)
+    // =========================================================================
+    // 3. Light Source Marker Setup
+    // =========================================================================
     EricStructure lightMarker;
-    lightMarker.generateSphere(0.5f, 16, 16); // Make light marker bigger
+    lightMarker.generateSphere(0.5f, 16, 16);
     VAO vaoLight; vaoLight.bind();
     VBO vboLight((float*)lightMarker.G.data(), lightMarker.G.size() * sizeof(VertexData));
     EBO eboLight(lightMarker.V);
@@ -95,12 +101,12 @@ int main() {
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 projection = camera.getProjectionMatrix(width, height);
 
-        // Light config: Orbit around the large building
+        // =====================================================================
+        // Dynamic Lighting Configuration (Orbital Light)
+        // =====================================================================
         float lightRadius = 25.0f;
         float lightAngle = currentTime * 0.5f;
-        // The model spans Y from -8 to 8 roughly, so put the light high up at Y=10.0f
         glm::vec3 lightPos(std::sin(lightAngle) * lightRadius, 10.0f, std::cos(lightAngle) * lightRadius);
-        // Make the light brighter
         glm::vec3 lightColor(2.0f, 2.0f, 2.0f);
 
         textureShader.use();
@@ -111,18 +117,19 @@ int main() {
         glUniformMatrix4fv(glGetUniformLocation(textureShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(textureShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-        // Draw Model
+        // =====================================================================
+        // Render 3D Model
+        // =====================================================================
         glm::mat4 model = glm::mat4(1.0f);
-        // The OBJ specifies "# metres; Z up", so we rotate -90 degrees around X to make Y up!
-        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        // Rotate slowly around the new Y axis (which was Z in the model) so we can see all sides
-        model = glm::rotate(model, currentTime * 0.2f, glm::vec3(0.0f, 0.0f, 1.0f)); 
-
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // Z-up to Y-up transform
+        model = glm::rotate(model, currentTime * 0.2f, glm::vec3(0.0f, 0.0f, 1.0f));   // Continuous rotation 
         glUniformMatrix4fv(glGetUniformLocation(textureShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
         
         loadedModel.draw(textureShader);
 
-        // Draw Light Marker
+        // =====================================================================
+        // Render Light Marker
+        // =====================================================================
         lightShader.use();
         glm::mat4 lightModel = glm::translate(glm::mat4(1.0f), lightPos);
         glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));

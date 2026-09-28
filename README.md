@@ -28,6 +28,16 @@ This repository contains the assignments and a custom OpenGL framework developed
 
 ---
 
+## 🎥 Current Exercise Demo: Model Loading (TinyObjLoader)
+
+This module implements an OBJ model loader using `tinyobjloader` to parse complex geometries and `mtl` material files. It supports meshes with multiple materials, parsing diffuse/specular maps, and falling back to base RGB surface colors if textures are not present.
+
+![Model Loading Result](src/ModelLoading/ModelLoading_Result.png)
+
+*A procedural building model generated for a thesis project, correctly loaded, centered, and rendered with Blinn-Phong lighting.*
+
+---
+
 ## 🎥 Current Exercise Demo: Textures & Lighting Maps
 
 This module implements Blinn-Phong lighting with Diffuse, Specular, and Normal maps using `stb_image.h`. It demonstrates mapping textures to a 3D Earth sphere and a wooden container, reacting dynamically to light.
