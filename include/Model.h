@@ -25,7 +25,12 @@ struct SubMesh {
     unsigned int specularMap;
     unsigned int normalMap;
 
-    SubMesh() : vao(nullptr), vbo(nullptr), ebo(nullptr), diffuseMap(0), specularMap(0), normalMap(0) {}
+    glm::vec3 diffuseColor;
+    glm::vec3 specularColor;
+
+    SubMesh() : vao(nullptr), vbo(nullptr), ebo(nullptr), 
+                diffuseMap(0), specularMap(0), normalMap(0),
+                diffuseColor(0.8f, 0.8f, 0.8f), specularColor(0.2f, 0.2f, 0.2f) {}
 
     void setup() {
         vao = new VAO();
@@ -44,11 +49,21 @@ struct SubMesh {
         if (diffuseMap != 0) {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, diffuseMap);
+            shader.setBool("useDiffuseMap", true);
+        } else {
+            shader.setBool("useDiffuseMap", false);
+            shader.setVec3("baseDiffuse", diffuseColor);
         }
+
         if (specularMap != 0) {
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, specularMap);
+            shader.setBool("useSpecularMap", true);
+        } else {
+            shader.setBool("useSpecularMap", false);
+            shader.setVec3("baseSpecular", specularColor);
         }
+
         if (normalMap != 0) {
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, normalMap);
@@ -160,8 +175,13 @@ private:
                 tinyobj::material_t mat = materials[material_id];
                 if (!mat.diffuse_texname.empty())
                     submesh->diffuseMap = loadTexture((directory + mat.diffuse_texname).c_str());
+                else 
+                    submesh->diffuseColor = glm::vec3(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]);
+                
                 if (!mat.specular_texname.empty())
                     submesh->specularMap = loadTexture((directory + mat.specular_texname).c_str());
+                else
+                    submesh->specularColor = glm::vec3(mat.specular[0], mat.specular[1], mat.specular[2]);
                 
                 // Normal maps can be stored in normal_texname or bump_texname
                 if (!mat.normal_texname.empty())

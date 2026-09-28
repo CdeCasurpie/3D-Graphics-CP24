@@ -13,7 +13,12 @@ struct Material {
 }; 
 
 uniform Material material;
+uniform bool useDiffuseMap;
+uniform bool useSpecularMap;
 uniform bool useNormalMap;
+
+uniform vec3 baseDiffuse;
+uniform vec3 baseSpecular;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
@@ -47,16 +52,19 @@ void main()
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 halfwayDir = normalize(lightDir + viewDir);
 
+    vec3 albedo = useDiffuseMap ? vec3(texture(material.diffuse, TexCoords)) : baseDiffuse;
+    vec3 specColor = useSpecularMap ? vec3(texture(material.specular, TexCoords)) : baseSpecular;
+
     // Ambient
-    vec3 ambient = lightColor * 0.1 * vec3(texture(material.diffuse, TexCoords));
+    vec3 ambient = lightColor * 0.1 * albedo;
 
     // Diffuse
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = lightColor * diff * vec3(texture(material.diffuse, TexCoords));
+    vec3 diffuse = lightColor * diff * albedo;
 
     // Specular
     float spec = pow(max(dot(norm, halfwayDir), 0.0), material.shininess);
-    vec3 specular = lightColor * spec * vec3(texture(material.specular, TexCoords));
+    vec3 specular = lightColor * spec * specColor;
 
     vec3 result = ambient + diffuse + specular;
     FragColor = vec4(result, 1.0);

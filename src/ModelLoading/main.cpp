@@ -50,13 +50,13 @@ int main() {
     Shader textureShader("src/TexturesAndMaps/texture.vert", "src/TexturesAndMaps/texture.frag");
     Shader lightShader("src/ShadowMapping/light.vert", "src/ShadowMapping/light.frag");
 
-    Camera camera(5.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+    Camera camera(25.0f, glm::vec3(4.0f, 8.0f, 0.0f));
     camera.registerCallbacks(window.glfwWindow);
 
     std::cout << "TAREA 13: Carga de Modelos OBJ (tinyobjloader)\n";
 
-    // 1. Load Model (Using a simple 1KB cube to save RAM)
-    Model loadedModel("assets/models/cube/cube.obj");
+    // 1. Load Model (User's thesis OBJ)
+    Model loadedModel("/home/cesar/Escritorio/UTEC/PFC1_Lima/forget-the-pixels/investigation/procedural_reconstruction/steps/step10_procedural_generation_test/outputs/composed_grammar/03_corner.obj");
 
     // 2. Setup Light Marker (small sphere)
     EricStructure lightMarker;
