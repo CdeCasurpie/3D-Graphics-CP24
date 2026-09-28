@@ -13,6 +13,7 @@ This repository contains the assignments and a custom OpenGL framework developed
 
 * `include/`: Contains the core framework wrappers (`Window`, `Shader`, `VAO`, `VBO`, `EBO`, `Camera`) and the data structure `EricStructure.h` (CHE).
 * `src/`: Contains the specific implementation for each assignment.
+  * `ShadowMapping/`: **(Task 11)** Implementation of 2-pass Directional Shadow Mapping (PCF, Shadow Bias, GL_CLAMP_TO_BORDER).
   * `Iluminacion/`: **(Task 10)** Comparison of Phong & Blinn-Phong illumination models with Gouraud & Phong shading.
   * `ArcballCamera/`: Arcball camera interaction with quaternions, mouse drag, scroll zoom, and animated orbit mode.
   * `Camara/`: Camera placement and movement exploration.
@@ -25,7 +26,17 @@ This repository contains the assignments and a custom OpenGL framework developed
 
 ---
 
-## 🎥 Current Exercise Demo: Mesh Simplification (QEM LOD)
+## 🎥 Current Exercise Demo: 2-Pass Shadow Mapping
+
+This module implements the directional shadow mapping algorithm. It features Percentage-Closer Filtering (PCF) for soft edges, dynamic shadow bias to prevent acne, and `GL_CLAMP_TO_BORDER` to avoid over-sampling outside the light's frustum.
+
+![Shadow Mapping Result](src/ShadowMapping/ShadowMapping_Result.png)
+
+*Dynamic shadows cast by an orbiting light source, computed in real-time using a 2048x2048 depth map.*
+
+---
+
+## Mesh Simplification (QEM LOD)
 
 This module implements the Garland-Heckbert Quadric Error Metrics algorithm for mesh decimation. It performs edge collapses directly on the Level 1 Compact Half-Edge (CHE) structure while maintaining topological integrity via lazy updates.
 

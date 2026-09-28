@@ -11,7 +11,7 @@
 
 /**
  * @struct Vec3
- * @brief Vector 3D simple para coordenadas y normales.
+ * @brief Simple 3D vector for coordinates and normals.
  */
 struct Vec3 {
     float x, y, z;
@@ -19,7 +19,7 @@ struct Vec3 {
 
 /**
  * @struct VertexData
- * @brief Empaqueta la posicion (X,Y,Z) y la Normal (NX,NY,NZ) para enviarla a la GPU.
+ * @brief Packs Position (X,Y,Z) and Normal (NX,NY,NZ) to be sent to the GPU.
  */
 struct VertexData {
     Vec3 Position;
@@ -28,32 +28,32 @@ struct VertexData {
 
 /**
  * @class EricStructure
- * @brief Implementacion de la estructura topologica Compact Half-Edge (CHE).
- *        Maneja la conectividad de la malla usando arreglos (V y O).
+ * @brief Implementation of the Compact Half-Edge (CHE) topological structure.
+ *        Manages mesh connectivity using arrays (V and O).
  */
 class EricStructure {
 public:
-    // --- GEOMETRIA ---
-    std::vector<VertexData> G; ///< Almacena los vertices fisicos (Coordenadas y Normales)
+    // --- GEOMETRY ---
+    std::vector<VertexData> G; ///< Stores physical vertices (Coordinates and Normals)
 
-    // --- NIVEL 0 (Sopa de Triangulos / Apex) ---
-    std::vector<unsigned int> V; ///< Guarda el indice del vertice al que apunta cada half-edge (Equivale al EBO de OpenGL)
+    // --- LEVEL 0 (Triangle Soup / Apex) ---
+    std::vector<unsigned int> V; ///< Stores the vertex index that each half-edge points to (Equivalent to OpenGL EBO)
 
-    // --- NIVEL 1 (Adyacencias) ---
-    std::vector<int> O; ///< Guarda el indice del half-edge opuesto a cada half-edge (-1 si es frontera)
+    // --- LEVEL 1 (Adjacencies) ---
+    std::vector<int> O; ///< Stores the opposite half-edge index for each half-edge (-1 if boundary)
 
     EricStructure() {}
 
-    /** @brief Obtiene el ID del triangulo al que pertenece una half-edge */
+    /** @brief Gets the ID of the triangle to which a half-edge belongs */
     int triangle(int he) const { return he / 3; }
 
-    /** @brief Obtiene la siguiente half-edge dentro del mismo triangulo */
+    /** @brief Gets the next half-edge within the same triangle */
     int next(int he) const { return (3 * triangle(he)) + ((he + 1) % 3); }
 
-    /** @brief Obtiene la half-edge previa dentro del mismo triangulo */
+    /** @brief Gets the previous half-edge within the same triangle */
     int prev(int he) const { return (3 * triangle(he)) + ((he + 2) % 3); }
 
-    /** @brief Obtiene la half-edge opuesta en el triangulo vecino */
+    /** @brief Gets the opposite half-edge in the adjacent triangle */
     int opposite(int he) const { return O[he]; }
 
     /**
@@ -286,12 +286,13 @@ public:
     };
 
     /**
-     * @brief Bucle principal de simplificación usando una Cola de Prioridad.
+     * @brief Main simplification loop using a Priority Queue.
+     * @param targetTriangles The target number of triangles to reach.
      */
     void simplifyMesh(int targetTriangles) {
-        computeInitialQuadrics(); // Inicializar QEM
+        computeInitialQuadrics(); // Initialize QEM
 
-        // Contar triángulos válidos actuales
+        // Count current valid triangles
         int currentTriangles = 0;
         for (size_t i = 0; i < V.size(); i += 3) {
             if (V[i] != (unsigned int)-1) currentTriangles++;
@@ -299,30 +300,30 @@ public:
 
         std::priority_queue<EdgeRecord, std::vector<EdgeRecord>, std::greater<EdgeRecord>> pq;
 
-        // Llenar la cola inicial
+        // Populate initial queue
         for (int he = 0; he < V.size(); ++he) {
             if (isValid(he) && opposite(he) != -1) {
-                // Para evitar duplicados, solo metemos half-edges donde he < opposite(he)
+                // To avoid duplicates, only add half-edges where he < opposite(he)
                 if (he < opposite(he)) {
                     pq.push({he, calculateEdgeCost(he)});
                 }
             }
         }
 
-        // Bucle de colapsos
+        // Collapse loop
         while (!pq.empty() && currentTriangles > targetTriangles) {
             EdgeRecord record = pq.top();
             pq.pop();
 
-            // Si el edge sigue siendo válido (no colapsó indirectamente)
+            // If the edge is still valid (not collapsed indirectly)
             if (isValid(record.he) && opposite(record.he) != -1) {
                 int v1 = V[prev(record.he)];
                 int v2 = V[record.he];
                 
-                if (v1 != v2) { // Evita colapsar aristas ya fusionadas
-                    // TRUCO: Lazy Update. Como no podemos actualizar costos dentro de la priority_queue,
-                    // recalculamos el costo AHORA. Si cambió mucho (porque los vértices se movieron 
-                    // en colapsos anteriores), lo re-insertamos con el costo correcto y lo ignoramos por ahora.
+                if (v1 != v2) { // Avoid collapsing already merged edges
+                    // TRICK: Lazy Update. Since we can't update costs inside the priority_queue,
+                    // we recalculate the cost NOW. If it changed significantly (because vertices moved 
+                    // in previous collapses), we re-insert it with the correct cost and ignore it for now.
                     float currentCost = calculateEdgeCost(record.he);
                     if (currentCost > record.cost + 0.0001f) {
                         pq.push({record.he, currentCost});
@@ -330,12 +331,12 @@ public:
                     }
 
                     collapseEdge(record.he);
-                    currentTriangles -= 2; // Cada colapso elimina 2 triángulos
+                    currentTriangles -= 2; // Each collapse removes 2 triangles
                 }
             }
         }
         
-        compactArrays(); // Limpiar la memoria
+        compactArrays(); // Clean up memory
     }
 
     // =========================================================================
@@ -404,7 +405,9 @@ public:
     };
 
     /**
-     * @brief Calcula las distancias geodésicas desde un vértice origen a toda la malla.
+     * @brief Computes geodesic distances from a source vertex to all other vertices.
+     * @param sourceVertex The index of the starting vertex.
+     * @return A vector of geodesic distances for each vertex.
      */
     std::vector<float> fastMarching(int sourceVertex) {
         enum State { FAR, FRONT, FROZEN };
@@ -417,8 +420,7 @@ public:
         states[sourceVertex] = FRONT;
         pq.push({sourceVertex, 0.0f});
 
-        // Pre-calcular conectividad de vértices para iterar rápido (Vecinos y Triángulos)
-        // En L1 esto cuesta O(N) una vez, lo que acelera muchísimo el bucle de Dijkstra.
+        // Pre-compute vertex connectivity to accelerate iteration (Vertices to Half-Edges)
         std::vector<std::vector<int>> vertexToHalfEdges(G.size());
         for (int i = 0; i < V.size(); ++i) {
             if (V[i] != (unsigned int)-1) {
@@ -432,19 +434,18 @@ public:
 
             int u = current.vertex;
 
-            // Si ya lo congelamos antes (por un update lazy más barato), ignoramos
+            // Skip if already frozen (due to lazy updates in the priority queue)
             if (states[u] == FROZEN) continue;
             states[u] = FROZEN;
 
-            // Para cada half-edge que apunta o sale de 'u'
             for (int he : vertexToHalfEdges[u]) {
                 int he_prev = prev(he);
                 int he_next = next(he);
                 int v1 = V[he_prev]; 
                 int v2 = V[he_next]; 
 
-                // 1. Siempre permitimos que la onda viaje por la arista (1D Dijkstra normal)
-                // Esto es crucial para que la onda "arranque" desde un solo vértice origen.
+                // 1. Dijkstra Edge Relaxation (1D)
+                // Allows the wavefront to propagate along the edges.
                 Vec3 pu = G[u].Position, pv1 = G[v1].Position, pv2 = G[v2].Position;
                 
                 float edgeDist1 = distances[u] + sqrt(pow(pu.x-pv1.x,2) + pow(pu.y-pv1.y,2) + pow(pu.z-pv1.z,2));
@@ -461,8 +462,8 @@ public:
                     pq.push({v2, edgeDist2});
                 }
 
-                // 2. Si ya hay DOS vértices congelados en el triángulo, aplicamos Fast Marching (Eikonal 2D)
-                // Esto encontrará un atajo por el medio de la cara del triángulo, reduciendo la distancia.
+                // 2. Fast Marching Eikonal Update (2D)
+                // Finds a shortcut across the triangle face if two vertices are already frozen.
                 if (states[v1] != FROZEN && states[v2] == FROZEN) {
                     float newDist = eikonalUpdate(v1, u, v2, distances[u], distances[v2]);
                     if (newDist < distances[v1]) {
