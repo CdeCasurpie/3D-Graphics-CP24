@@ -255,6 +255,44 @@ public:
     std::vector<glm::mat4> Q;
 
     /**
+     * @brief Merges duplicate vertices (same 3D position) to close topological seams.
+     * Critical for procedural shapes like spheres that duplicate vertices at poles/seams for UVs.
+     */
+    void mergeDuplicateVertices() {
+        std::vector<int> remap(G.size());
+        for(size_t i = 0; i < G.size(); ++i) {
+            remap[i] = i;
+            for(size_t j = 0; j < i; ++j) {
+                float dx = G[i].Position.x - G[j].Position.x;
+                float dy = G[i].Position.y - G[j].Position.y;
+                float dz = G[i].Position.z - G[j].Position.z;
+                if (dx*dx + dy*dy + dz*dz < 1e-8f) { // Very small threshold
+                    remap[i] = j;
+                    break;
+                }
+            }
+        }
+        for(size_t i = 0; i < V.size(); ++i) {
+            if(V[i] != (unsigned int)-1) {
+                V[i] = remap[V[i]];
+            }
+        }
+        // Remove completely degenerate triangles that collapsed to 0 area
+        std::vector<unsigned int> newV;
+        for(size_t i = 0; i < V.size(); i += 3) {
+            if(V[i] != (unsigned int)-1) {
+                if(V[i] == V[i+1] || V[i+1] == V[i+2] || V[i] == V[i+2]) continue;
+                newV.push_back(V[i]);
+                newV.push_back(V[i+1]);
+                newV.push_back(V[i+2]);
+            }
+        }
+        V = newV;
+        // Rebuild half-edges to stitch the closed seams
+        buildLevel1();
+    }
+
+    /**
      * @brief Precalcula las métricas de error cuádrico (QEM) para todos los vértices.
      * Siguiendo a Garland-Heckbert: Se calcula el plano de cada triángulo y se suma
      * su matriz fundamental a los vértices que lo componen.
@@ -398,6 +436,7 @@ public:
      * @param targetTriangles The target number of triangles to reach.
      */
     void simplifyMesh(int targetTriangles) {
+        mergeDuplicateVertices(); // Seal the topology before simplifying
         computeInitialQuadrics(); // Initialize QEM
 
         // Count current valid triangles
