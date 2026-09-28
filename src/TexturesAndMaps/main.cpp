@@ -110,7 +110,8 @@ int main() {
         int width, height;
         glfwGetFramebufferSize(window.glfwWindow, &width, &height);
         glViewport(0, 0, width, height);
-        window.clear(0.05f, 0.05f, 0.1f, 1.0f);
+        glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 projection = camera.getProjectionMatrix(width, height);
