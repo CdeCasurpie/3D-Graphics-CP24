@@ -50,7 +50,8 @@ int main() {
     Shader textureShader("src/TexturesAndMaps/texture.vert", "src/TexturesAndMaps/texture.frag");
     Shader lightShader("src/ShadowMapping/light.vert", "src/ShadowMapping/light.frag");
 
-    Camera camera(25.0f, glm::vec3(4.0f, 8.0f, 0.0f));
+    // Set camera distance to 30 and target to the origin (since the model is centered)
+    Camera camera(30.0f, glm::vec3(0.0f, 0.0f, 0.0f));
     camera.registerCallbacks(window.glfwWindow);
 
     std::cout << "TAREA 13: Carga de Modelos OBJ (tinyobjloader)\n";
@@ -100,7 +101,7 @@ int main() {
         // The model spans Y from -8 to 8 roughly, so put the light high up at Y=10.0f
         glm::vec3 lightPos(std::sin(lightAngle) * lightRadius, 10.0f, std::cos(lightAngle) * lightRadius);
         // Make the light brighter
-        glm::vec3 lightColor(1.2f, 1.2f, 1.2f);
+        glm::vec3 lightColor(2.0f, 2.0f, 2.0f);
 
         textureShader.use();
         textureShader.setFloat("material.shininess", 32.0f);
