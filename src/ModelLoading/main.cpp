@@ -55,8 +55,8 @@ int main() {
 
     std::cout << "TAREA 13: Carga de Modelos OBJ (tinyobjloader)\n";
 
-    // 1. Load Model
-    Model backpack("assets/models/backpack/backpack.obj");
+    // 1. Load Model (Using a simple 1KB cube to save RAM)
+    Model loadedModel("assets/models/cube/cube.obj");
 
     // 2. Setup Light Marker (small sphere)
     EricStructure lightMarker;
@@ -109,11 +109,11 @@ int main() {
 
         // Draw Model
         glm::mat4 model = glm::mat4(1.0f);
-        // Backpack model can be big, scale it down
-        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        // Model can be scaled up a bit
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(glGetUniformLocation(textureShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
         
-        backpack.draw(textureShader);
+        loadedModel.draw(textureShader);
 
         // Draw Light Marker
         lightShader.use();
