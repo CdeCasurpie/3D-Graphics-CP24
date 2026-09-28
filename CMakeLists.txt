@@ -62,3 +62,7 @@ target_link_libraries(ShadowMapping glfw OpenGL::GL)
 # Target 12: Textures & Lighting Maps
 add_executable(TexturesAndMaps src/TexturesAndMaps/main.cpp glad/src/gl.c)
 target_link_libraries(TexturesAndMaps glfw OpenGL::GL)
+
+# Target 13: Model Loading
+add_executable(ModelLoading src/ModelLoading/main.cpp glad/src/gl.c)
+target_link_libraries(ModelLoading glfw OpenGL::GL)

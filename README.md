@@ -13,6 +13,7 @@ This repository contains the assignments and a custom OpenGL framework developed
 
 * `include/`: Contains the core framework wrappers (`Window`, `Shader`, `VAO`, `VBO`, `EBO`, `Camera`) and the data structure `EricStructure.h` (CHE).
 * `src/`: Contains the specific implementation for each assignment.
+  * `ModelLoading/`: **(Task 13)** Load complete OBJ scenes with material properties and texture maps using `tinyobjloader`.
   * `TexturesAndMaps/`: **(Task 12)** Albedo (Diffuse), Specular, and Normal Mapping with `stb_image.h`.
   * `ShadowMapping/`: **(Task 11)** Implementation of 2-pass Directional Shadow Mapping (PCF, Shadow Bias, GL_CLAMP_TO_BORDER).
   * `Iluminacion/`: **(Task 10)** Comparison of Phong & Blinn-Phong illumination models with Gouraud & Phong shading.
