@@ -23,8 +23,8 @@ int main() {
     simplifiedSphere.generateSphere(1.0f, 40, 40);
     
     // AQUÍ ES DONDE APLICAREMOS LA SIMPLIFICACIÓN
-    // Llama a tu función para que deje la malla en 500 triángulos.
-    simplifiedSphere.simplifyMesh(500); 
+    // Llama a tu función para que deje la malla en 150 triángulos (Low-poly)
+    simplifiedSphere.simplifyMesh(150); 
 
     // --- EVALUAR EL ERROR CONTRA LA MALLA ORIGINAL ---
     // Como la original es una esfera perfecta de radio 1.0 en el origen, 
@@ -47,7 +47,7 @@ int main() {
     std::cout << "==========================================\n";
     std::cout << " EVALUACION DE ERROR (Task 04)\n";
     std::cout << "==========================================\n";
-    std::cout << " Triangulos finales: 500\n";
+    std::cout << " Triangulos finales: 150\n";
     std::cout << " Error promedio por vertice (Distancia a la superficie original): " << (totalError / validVertices) << "\n";
     std::cout << "==========================================\n";
 
