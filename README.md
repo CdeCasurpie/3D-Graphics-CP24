@@ -27,7 +27,17 @@ This repository contains the assignments and a custom OpenGL framework developed
 
 ---
 
-## 🎥 Current Exercise Demo: 2-Pass Shadow Mapping
+## 🎥 Current Exercise Demo: Textures & Lighting Maps
+
+This module implements Blinn-Phong lighting with Diffuse, Specular, and Normal maps using `stb_image.h`. It demonstrates mapping textures to a 3D Earth sphere and a wooden container, reacting dynamically to light.
+
+![Textures Mapping Result](src/TexturesAndMaps/Textures_Result.png)
+
+*A textured cube (with specular and normal maps) and an Earth sphere reacting to an orbiting light source.*
+
+---
+
+## 2-Pass Shadow Mapping
 
 This module implements the directional shadow mapping algorithm. It features Percentage-Closer Filtering (PCF) for soft edges, dynamic shadow bias to prevent acne, and `GL_CLAMP_TO_BORDER` to avoid over-sampling outside the light's frustum.
 

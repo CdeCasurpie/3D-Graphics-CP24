@@ -14,6 +14,15 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
+/**
+ * @brief Utility function to load a 2D texture from a file using stb_image.h.
+ * 
+ * It automatically flips the image vertically to match OpenGL's coordinate system,
+ * generates mipmaps, and configures standard wrapping and filtering parameters.
+ * 
+ * @param path The file path to the image texture.
+ * @return unsigned int The OpenGL ID of the generated texture object.
+ */
 unsigned int loadTexture(char const * path) {
     unsigned int textureID;
     glGenTextures(1, &textureID);
@@ -31,6 +40,7 @@ unsigned int loadTexture(char const * path) {
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
+        // Configure wrapping and filtering (Linear filtering + Mipmaps)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -55,13 +65,18 @@ int main() {
 
     std::cout << "TAREA 12: Texturas y Mapas de Iluminacion\n";
 
-    // Textures
+    // =========================================================================
+    // 1. Load Textures (Diffuse, Specular, Normal)
+    // =========================================================================
     unsigned int diffuseMap = loadTexture("assets/textures/container2.png");
     unsigned int specularMap = loadTexture("assets/textures/container2_specular.png");
     unsigned int brickNormalMap = loadTexture("assets/textures/brickwall_normal.jpg");
     unsigned int earthMap = loadTexture("assets/textures/earth.jpg");
 
-    // Geometries
+    // =========================================================================
+    // 2. Setup Geometries and Buffers
+    // =========================================================================
+    // We use generateTexturedCube to get 24 vertices (so each face has unique UVs)
     EricStructure cubeMesh;
     cubeMesh.generateTexturedCube(1.0f);
     VAO vaoCube; vaoCube.bind();
@@ -130,7 +145,9 @@ int main() {
         glUniformMatrix4fv(glGetUniformLocation(textureShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(textureShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
+        // =====================================================================
         // 1. Draw Wooden Container (Cube)
+        // =====================================================================
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
         glActiveTexture(GL_TEXTURE1);
@@ -147,7 +164,9 @@ int main() {
         vaoCube.bind();
         glDrawElements(GL_TRIANGLES, cubeMesh.V.size(), GL_UNSIGNED_INT, 0);
 
+        // =====================================================================
         // 2. Draw Earth (Sphere)
+        // =====================================================================
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, earthMap);
         glActiveTexture(GL_TEXTURE1); // Re-use diffuse as specular just to have some reflection
@@ -162,7 +181,9 @@ int main() {
         vaoSphere.bind();
         glDrawElements(GL_TRIANGLES, sphereMesh.V.size(), GL_UNSIGNED_INT, 0);
 
-        // 3. Draw Light
+        // =====================================================================
+        // 3. Draw Light Source (White Sphere)
+        // =====================================================================
         lightShader.use();
         glm::mat4 lightModel = glm::translate(glm::mat4(1.0f), lightPos);
         glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
