@@ -91,14 +91,14 @@ run-ShadowMapping: ShadowMapping
 	@./build/ShadowMapping
 
 TexturesAndMaps:
-	@cmake -B build
+	@cmake -B build -DCMAKE_BUILD_TYPE=Release
 	@cmake --build build --target TexturesAndMaps
 
 run-TexturesAndMaps: TexturesAndMaps
 	@./build/TexturesAndMaps
 
 ModelLoading:
-	@cmake -B build
+	@cmake -B build -DCMAKE_BUILD_TYPE=Release
 	@cmake --build build --target ModelLoading
 
 run-ModelLoading: ModelLoading
