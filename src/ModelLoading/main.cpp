@@ -45,7 +45,7 @@ unsigned int loadTexture(char const * path) {
 }
 
 int main() {
-    Window window(800, 800, "Task 13: Model Loading");
+    Window window(1280, 720, "Task 13: Model Loading");
 
     Shader textureShader("src/TexturesAndMaps/texture.vert", "src/TexturesAndMaps/texture.frag");
     Shader lightShader("src/ShadowMapping/light.vert", "src/ShadowMapping/light.frag");
