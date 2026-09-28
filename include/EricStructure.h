@@ -6,6 +6,7 @@
 #include <cmath>
 #include <iostream>
 #include <queue>
+#include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -261,7 +262,7 @@ public:
     void computeInitialQuadrics() {
         Q.assign(G.size(), glm::mat4(0.0f));
 
-        for (int i = 0; i < V.size(); i += 3) {
+        for (size_t i = 0; i < V.size(); i += 3) {
             if (V[i] == (unsigned int)-1) continue; // Triángulo borrado
 
             int v1 = V[i], v2 = V[i+1], v3 = V[i+2];
@@ -271,7 +272,9 @@ public:
 
             // Calcular la normal del plano (Unitaria)
             glm::vec3 n = glm::normalize(glm::cross(p2 - p1, p3 - p1));
-            // d = -dot(n, p)
+            // Si el triángulo es degenerado, saltarlo
+            if (std::isnan(n.x)) continue;
+
             float d = -glm::dot(n, p1);
 
             // Matriz fundamental del plano: Kp = p * p^T
@@ -283,6 +286,40 @@ public:
             Q[v2] += Kp;
             Q[v3] += Kp;
         }
+    }
+
+    /**
+     * @brief Check Link Condition to avoid non-manifold topology during edge collapse.
+     */
+    bool checkLinkCondition(int v1, int v2) const {
+        std::vector<int> N1;
+        std::vector<int> N2;
+        
+        for(size_t i = 0; i < V.size(); i += 3) {
+            if(V[i] == (unsigned int)-1) continue;
+            int tv0 = V[i], tv1 = V[i+1], tv2 = V[i+2];
+            if(tv0 == v1) { N1.push_back(tv1); N1.push_back(tv2); }
+            if(tv1 == v1) { N1.push_back(tv0); N1.push_back(tv2); }
+            if(tv2 == v1) { N1.push_back(tv0); N1.push_back(tv1); }
+            
+            if(tv0 == v2) { N2.push_back(tv1); N2.push_back(tv2); }
+            if(tv1 == v2) { N2.push_back(tv0); N2.push_back(tv2); }
+            if(tv2 == v2) { N2.push_back(tv0); N2.push_back(tv1); }
+        }
+        
+        std::sort(N1.begin(), N1.end());
+        N1.erase(std::unique(N1.begin(), N1.end()), N1.end());
+        std::sort(N2.begin(), N2.end());
+        N2.erase(std::unique(N2.begin(), N2.end()), N2.end());
+        
+        int common = 0;
+        for(int n : N1) {
+            if(std::binary_search(N2.begin(), N2.end(), n)) {
+                common++;
+            }
+        }
+        
+        return (common <= 2);
     }
 
     /**
@@ -392,6 +429,10 @@ public:
                 int v2 = V[record.he];
                 
                 if (v1 != v2) { // Avoid collapsing already merged edges
+                    if (!checkLinkCondition(v1, v2)) {
+                        continue; // Skip this collapse to preserve manifold topology
+                    }
+
                     // TRICK: Lazy Update. Since we can't update costs inside the priority_queue,
                     // we recalculate the cost NOW. If it changed significantly (because vertices moved 
                     // in previous collapses), we re-insert it with the correct cost and ignore it for now.
@@ -408,6 +449,36 @@ public:
         }
         
         compactArrays(); // Clean up memory
+        recalculateNormals(); // Update normals for the new geometry
+    }
+
+    /**
+     * @brief Recalculates vertex normals by averaging face normals.
+     */
+    void recalculateNormals() {
+        for(auto& v : G) {
+            v.Normal = {0.0f, 0.0f, 0.0f};
+        }
+        for(size_t i = 0; i < V.size(); i += 3) {
+            if(V[i] == (unsigned int)-1) continue;
+            int v1 = V[i], v2 = V[i+1], v3 = V[i+2];
+            glm::vec3 p1(G[v1].Position.x, G[v1].Position.y, G[v1].Position.z);
+            glm::vec3 p2(G[v2].Position.x, G[v2].Position.y, G[v2].Position.z);
+            glm::vec3 p3(G[v3].Position.x, G[v3].Position.y, G[v3].Position.z);
+            glm::vec3 n = glm::cross(p2 - p1, p3 - p1);
+            if(!std::isnan(n.x) && glm::length(n) > 1e-6f) {
+                G[v1].Normal.x += n.x; G[v1].Normal.y += n.y; G[v1].Normal.z += n.z;
+                G[v2].Normal.x += n.x; G[v2].Normal.y += n.y; G[v2].Normal.z += n.z;
+                G[v3].Normal.x += n.x; G[v3].Normal.y += n.y; G[v3].Normal.z += n.z;
+            }
+        }
+        for(auto& v : G) {
+            glm::vec3 n(v.Normal.x, v.Normal.y, v.Normal.z);
+            if(glm::length(n) > 1e-6f) {
+                n = glm::normalize(n);
+                v.Normal = {n.x, n.y, n.z};
+            }
+        }
     }
 
     // =========================================================================
@@ -566,6 +637,7 @@ private:
         std::vector<unsigned int> newV;
         for(size_t i = 0; i < V.size(); i += 3) {
             if(V[i] != (unsigned int)-1) {
+                if (V[i] == V[i+1] || V[i+1] == V[i+2] || V[i] == V[i+2]) continue;
                 newV.push_back(V[i]);
                 newV.push_back(V[i+1]);
                 newV.push_back(V[i+2]);
