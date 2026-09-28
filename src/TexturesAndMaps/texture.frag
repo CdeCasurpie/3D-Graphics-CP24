@@ -56,7 +56,7 @@ void main()
     vec3 specColor = useSpecularMap ? vec3(texture(material.specular, TexCoords)) : baseSpecular;
 
     // Ambient
-    vec3 ambient = lightColor * 0.1 * albedo;
+    vec3 ambient = lightColor * 0.3 * albedo;
 
     // Diffuse
     float diff = max(dot(norm, lightDir), 0.0);

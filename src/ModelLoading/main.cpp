@@ -55,12 +55,12 @@ int main() {
 
     std::cout << "TAREA 13: Carga de Modelos OBJ (tinyobjloader)\n";
 
-    // 1. Load Model (User's thesis OBJ)
-    Model loadedModel("/home/cesar/Escritorio/UTEC/PFC1_Lima/forget-the-pixels/investigation/procedural_reconstruction/steps/step10_procedural_generation_test/outputs/composed_grammar/03_corner.obj");
+    // 1. Load Model (User's thesis OBJ, now centered locally)
+    Model loadedModel("assets/models/thesis/03_corner.obj");
 
     // 2. Setup Light Marker (small sphere)
     EricStructure lightMarker;
-    lightMarker.generateSphere(0.1f, 16, 16);
+    lightMarker.generateSphere(0.5f, 16, 16); // Make light marker bigger
     VAO vaoLight; vaoLight.bind();
     VBO vboLight((float*)lightMarker.G.data(), lightMarker.G.size() * sizeof(VertexData));
     EBO eboLight(lightMarker.V);
@@ -87,17 +87,20 @@ int main() {
         int width, height;
         glfwGetFramebufferSize(window.glfwWindow, &width, &height);
         glViewport(0, 0, width, height);
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        // Change background to a softer color to see better
+        glClearColor(0.5f, 0.6f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 projection = camera.getProjectionMatrix(width, height);
 
-        // Light config
-        float lightRadius = 3.0f;
-        float lightAngle = currentTime * 0.8f;
-        glm::vec3 lightPos(std::sin(lightAngle) * lightRadius, 1.5f, std::cos(lightAngle) * lightRadius);
-        glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
+        // Light config: Orbit around the large building
+        float lightRadius = 25.0f;
+        float lightAngle = currentTime * 0.5f;
+        // The model spans Y from -8 to 8 roughly, so put the light high up at Y=10.0f
+        glm::vec3 lightPos(std::sin(lightAngle) * lightRadius, 10.0f, std::cos(lightAngle) * lightRadius);
+        // Make the light brighter
+        glm::vec3 lightColor(1.2f, 1.2f, 1.2f);
 
         textureShader.use();
         textureShader.setFloat("material.shininess", 32.0f);
@@ -109,8 +112,11 @@ int main() {
 
         // Draw Model
         glm::mat4 model = glm::mat4(1.0f);
-        // Model can be scaled up a bit
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+        // The OBJ specifies "# metres; Z up", so we rotate -90 degrees around X to make Y up!
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        // Rotate slowly around the new Y axis (which was Z in the model) so we can see all sides
+        model = glm::rotate(model, currentTime * 0.2f, glm::vec3(0.0f, 0.0f, 1.0f)); 
+
         glUniformMatrix4fv(glGetUniformLocation(textureShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
         
         loadedModel.draw(textureShader);
