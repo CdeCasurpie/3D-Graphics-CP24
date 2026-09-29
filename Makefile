@@ -104,3 +104,10 @@ ModelLoading:
 run-ModelLoading: ModelLoading
 	@./build/ModelLoading
 
+
+Project1:
+	@cmake -B build -DCMAKE_BUILD_TYPE=Release
+	@cmake --build build --target Project1
+
+run-Project1: Project1
+	@./build/Project1

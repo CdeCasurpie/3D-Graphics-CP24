@@ -28,20 +28,11 @@ struct SubMesh {
     glm::vec3 diffuseColor;
     glm::vec3 specularColor;
 
-    std::vector<float> distances;
-    VBO* vboDist;
-
     SubMesh() : vao(nullptr), vbo(nullptr), ebo(nullptr), 
                 diffuseMap(0), specularMap(0), normalMap(0),
-                diffuseColor(0.8f, 0.8f, 0.8f), specularColor(0.2f, 0.2f, 0.2f), vboDist(nullptr) {}
+                diffuseColor(0.8f, 0.8f, 0.8f), specularColor(0.2f, 0.2f, 0.2f) {}
 
     void setup() {
-        if (vao) delete vao;
-        if (vbo) delete vbo;
-        if (ebo) delete ebo;
-        if (vboDist) delete vboDist;
-        vboDist = nullptr;
-
         vao = new VAO();
         vao->bind();
         vbo = new VBO((float*)geometry.G.data(), geometry.G.size() * sizeof(VertexData));
@@ -50,12 +41,6 @@ struct SubMesh {
         vao->linkAttrib(*vbo, 0, 3, GL_FLOAT, sizeof(VertexData), (void*)0);
         vao->linkAttrib(*vbo, 1, 3, GL_FLOAT, sizeof(VertexData), (void*)sizeof(Vec3));
         vao->linkAttrib(*vbo, 2, 2, GL_FLOAT, sizeof(VertexData), (void*)(2 * sizeof(Vec3)));
-
-        // Bind distance data for Fast Marching heatmap visualization
-        if (distances.size() == geometry.G.size()) {
-            vboDist = new VBO(distances.data(), distances.size() * sizeof(float));
-            vao->linkAttrib(*vboDist, 3, 1, GL_FLOAT, sizeof(float), (void*)0);
-        }
 
         vao->unbind();
     }
@@ -96,7 +81,6 @@ struct SubMesh {
         if (vao) delete vao;
         if (vbo) delete vbo;
         if (ebo) delete ebo;
-        if (vboDist) delete vboDist;
     }
 };
 
@@ -205,8 +189,6 @@ private:
                 else if (!mat.bump_texname.empty())
                     submesh->normalMap = loadTexture((directory + mat.bump_texname).c_str());
             }
-            // Construir topología de CHE para algoritmos
-            submesh->geometry.mergeDuplicateVertices(); 
 
             submesh->setup();
             meshes.push_back(submesh);

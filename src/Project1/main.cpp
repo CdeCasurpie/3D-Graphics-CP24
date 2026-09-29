@@ -1,34 +1,46 @@
+#include "Window.h"
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cmath>
+#include <algorithm>
+#include <set>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
-unsigned int loadTexture(char const * path) {
+unsigned int loadTexture(char const* path) {
     unsigned int textureID;
     glGenTextures(1, &textureID);
-    
+
     int width, height, nrComponents;
-    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
     if (data) {
-        GLenum format;
+        GLenum format = GL_RGB;
         if (nrComponents == 1) format = GL_RED;
         else if (nrComponents == 3) format = GL_RGB;
         else if (nrComponents == 4) format = GL_RGBA;
-        else format = GL_RGB;
 
         glBindTexture(GL_TEXTURE_2D, textureID);
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
-        
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
         stbi_image_free(data);
     } else {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
+        std::cerr << "Texture failed to load: " << path << std::endl;
         stbi_image_free(data);
     }
     return textureID;
 }
 
-#include "Window.h"
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
@@ -41,47 +53,52 @@ unsigned int loadTexture(char const * path) {
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <iostream>
-#include <vector>
 
-// --- Vertex Picking Logic ---
-int getClosestVertex(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const EricStructure& mesh, const glm::mat4& modelMatrix) {
+// =====================================================================
+// Globals
+// =====================================================================
+Camera cam;
+bool performVertexPick = false;
+double pickX = 0, pickY = 0;
+
+// =====================================================================
+// Vertex Picking via Raycasting
+// =====================================================================
+int getClosestVertex(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
+                     const EricStructure& mesh, const glm::mat4& modelMatrix) {
     int bestVertex = -1;
-    float bestDist = 1e9f;
-    float minRayDist = 0.1f; // click precision threshold
+    float bestT = 1e9f;
 
     glm::mat4 invModel = glm::inverse(modelMatrix);
     glm::vec3 localOrigin = glm::vec3(invModel * glm::vec4(rayOrigin, 1.0f));
     glm::vec3 localDir = glm::normalize(glm::vec3(invModel * glm::vec4(rayDir, 0.0f)));
 
-    for (size_t i = 0; i < mesh.G.size(); ++i) {
-        bool isActive = false;
-        for (unsigned int v : mesh.V) {
-            if (v == i) { isActive = true; break; }
-        }
-        if (!isActive) continue;
+    // Build set of active vertex indices for O(1) lookup
+    std::set<unsigned int> activeVerts(mesh.V.begin(), mesh.V.end());
+    activeVerts.erase((unsigned int)-1);
 
-        glm::vec3 pos = glm::vec3(mesh.G[i].Position.x, mesh.G[i].Position.y, mesh.G[i].Position.z);
+    for (unsigned int idx : activeVerts) {
+        if (idx >= mesh.G.size()) continue;
+        glm::vec3 pos(mesh.G[idx].Position.x, mesh.G[idx].Position.y, mesh.G[idx].Position.z);
         glm::vec3 vToP = pos - localOrigin;
-        
+
         float t = glm::dot(vToP, localDir);
         if (t < 0.0f) continue;
 
         glm::vec3 projPos = localOrigin + localDir * t;
         float dist = glm::length(pos - projPos);
 
-        if (dist < minRayDist && t < bestDist) {
-            bestDist = t;
-            bestVertex = i;
+        if (dist < 0.15f && t < bestT) {
+            bestT = t;
+            bestVertex = (int)idx;
         }
     }
     return bestVertex;
 }
 
-Camera cam;
-bool performVertexPick = false;
-double pickX = 0, pickY = 0;
-
+// =====================================================================
+// GLFW Callbacks (route to Camera or ImGui)
+// =====================================================================
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     ImGuiIO& io = ImGui::GetIO();
     if (io.WantCaptureMouse) return;
@@ -93,11 +110,11 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         if (action == GLFW_PRESS) {
-            if (mods & GLFW_MOD_SHIFT) {
-                cam.startPanning(x, y);
-            } else if (mods & GLFW_MOD_CONTROL) {
+            if (mods & GLFW_MOD_CONTROL) {
                 performVertexPick = true;
                 pickX = x; pickY = y;
+            } else if (mods & GLFW_MOD_SHIFT) {
+                cam.startPanning(x, y);
             } else {
                 cam.startDragging(x, y, width, height);
             }
@@ -106,11 +123,10 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
             cam.stopPanning();
         }
     } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-        if (action == GLFW_PRESS) {
+        if (action == GLFW_PRESS)
             cam.startPanning(x, y);
-        } else if (action == GLFW_RELEASE) {
+        else if (action == GLFW_RELEASE)
             cam.stopPanning();
-        }
     }
 }
 
@@ -121,11 +137,10 @@ void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
 
-    if (cam.isDragging) {
+    if (cam.isDragging)
         cam.onMouseDrag(xpos, ypos, width, height);
-    } else if (cam.isPanning) {
+    else if (cam.isPanning)
         cam.onMousePan(xpos, ypos, width, height);
-    }
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -134,195 +149,359 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
     cam.onScroll(yoffset);
 }
 
+// =====================================================================
+// ImGui Style
+// =====================================================================
+void setupImGuiStyle() {
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.WindowRounding = 8.0f;
+    style.FrameRounding = 4.0f;
+    style.GrabRounding = 4.0f;
+    style.PopupRounding = 4.0f;
+    style.ScrollbarRounding = 6.0f;
+    style.TabRounding = 4.0f;
+    style.WindowPadding = ImVec2(12, 12);
+    style.FramePadding = ImVec2(8, 4);
+    style.ItemSpacing = ImVec2(8, 6);
+    style.WindowBorderSize = 1.0f;
+    style.FrameBorderSize = 0.0f;
+
+    ImVec4* colors = style.Colors;
+    colors[ImGuiCol_WindowBg]           = ImVec4(0.10f, 0.10f, 0.13f, 0.94f);
+    colors[ImGuiCol_Header]             = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
+    colors[ImGuiCol_HeaderHovered]      = ImVec4(0.26f, 0.30f, 0.38f, 1.00f);
+    colors[ImGuiCol_HeaderActive]       = ImVec4(0.26f, 0.30f, 0.38f, 1.00f);
+    colors[ImGuiCol_Button]             = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
+    colors[ImGuiCol_ButtonHovered]      = ImVec4(0.28f, 0.56f, 0.90f, 1.00f);
+    colors[ImGuiCol_ButtonActive]       = ImVec4(0.20f, 0.46f, 0.80f, 1.00f);
+    colors[ImGuiCol_FrameBg]            = ImVec4(0.16f, 0.16f, 0.20f, 1.00f);
+    colors[ImGuiCol_FrameBgHovered]     = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
+    colors[ImGuiCol_FrameBgActive]      = ImVec4(0.24f, 0.26f, 0.33f, 1.00f);
+    colors[ImGuiCol_SliderGrab]         = ImVec4(0.28f, 0.56f, 0.90f, 1.00f);
+    colors[ImGuiCol_SliderGrabActive]   = ImVec4(0.36f, 0.64f, 1.00f, 1.00f);
+    colors[ImGuiCol_CheckMark]          = ImVec4(0.28f, 0.56f, 0.90f, 1.00f);
+    colors[ImGuiCol_TitleBg]            = ImVec4(0.10f, 0.10f, 0.13f, 1.00f);
+    colors[ImGuiCol_TitleBgActive]      = ImVec4(0.16f, 0.16f, 0.20f, 1.00f);
+    colors[ImGuiCol_Separator]          = ImVec4(0.28f, 0.28f, 0.33f, 1.00f);
+}
+
+// =====================================================================
+// Main
+// =====================================================================
 int main() {
+    // 16:9 landscape
     Window window(1280, 720, "Project 1: Interactive 3D Scene Viewer & Engine");
-    
+
+    // ImGui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui::StyleColorsDark();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    setupImGuiStyle();
     ImGui_ImplGlfw_InitForOpenGL(window.glfwWindow, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
+    // Override GLFW callbacks after ImGui installs its own
     glfwSetMouseButtonCallback(window.glfwWindow, mouseButtonCallback);
     glfwSetCursorPosCallback(window.glfwWindow, cursorPosCallback);
     glfwSetScrollCallback(window.glfwWindow, scrollCallback);
 
+    // Camera
     cam.reset(6.0f);
 
+    // Shaders
     Shader mainShader("src/Project1/shaders/main.vert", "src/Project1/shaders/main.frag");
     Shader depthShader("src/Project1/shaders/depth.vert", "src/Project1/shaders/depth.frag");
 
-    // Load Default Model
+    // Scene 1: Thesis Model (OBJ)
     Model* model = new Model("assets/models/thesis/03_corner.obj");
 
-    // Shadow Map Setup
+    // Scene 2: Procedural Torus (for FMM demo)
+    EricStructure torusMesh;
+    torusMesh.generateTorus(1.0f, 0.4f, 60, 60, true);
+    std::vector<float> torusDistances(torusMesh.G.size(), 999999.0f);
+    float torusMaxDist = 1.0f;
+
+    VAO torusVAO; torusVAO.bind();
+    VBO torusVBO((float*)torusMesh.G.data(), torusMesh.G.size() * sizeof(VertexData));
+    torusVAO.linkAttrib(torusVBO, 0, 3, GL_FLOAT, sizeof(VertexData), (void*)0);
+    torusVAO.linkAttrib(torusVBO, 1, 3, GL_FLOAT, sizeof(VertexData), (void*)sizeof(Vec3));
+    torusVAO.linkAttrib(torusVBO, 2, 2, GL_FLOAT, sizeof(VertexData), (void*)(2 * sizeof(Vec3)));
+    VBO torusDistVBO(torusDistances.data(), torusDistances.size() * sizeof(float));
+    torusVAO.linkAttrib(torusDistVBO, 3, 1, GL_FLOAT, sizeof(float), (void*)0);
+    EBO torusEBO(torusMesh.V);
+    torusVAO.unbind();
+
+    // Shadow Map FBO
     const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
-    unsigned int depthMapFBO, depthMap;
+    unsigned int depthMapFBO, depthMapTex;
     glGenFramebuffers(1, &depthMapFBO);
-    glGenTextures(1, &depthMap);
-    glBindTexture(GL_TEXTURE_2D, depthMap);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glGenTextures(1, &depthMapTex);
+    glBindTexture(GL_TEXTURE_2D, depthMapTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0,
+                 GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMapTex, 0);
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // State Variables
+    // State
     glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
     glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
-    int renderMode = 0; // 0=Norm, 1=Heatmap, 2=Normals, 3=Depth
-    bool isAnimatingLight = false;
-    bool isAnimatingModel = false;
-    float modelAngle = -90.0f; // Fix Z-up models initially
-    
+    int renderMode = 0;          // 0=Textured, 1=Heatmap, 2=Normals, 3=Depth
+    bool animateLight = false;
+    bool animateModel = false;
+    bool isPaused = false;
+    float modelRotationX = -90.0f; // Z-up correction
+    float modelRotationY = 0.0f;
+
     int simplifyTarget = 1000;
     float globalMaxDist = 1.0f;
     int pickedVertex = -1;
 
+    int activeScene = 0; // 0=Thesis OBJ, 1=Torus
+    int torusPickedVertex = -1;
+
+    float lastTime = (float)glfwGetTime();
+
     glEnable(GL_DEPTH_TEST);
-    
+
+    // =====================================================================
+    // Main Loop
+    // =====================================================================
     while (!window.shouldClose()) {
         window.processInput();
 
-        float time = glfwGetTime();
-        if (isAnimatingLight) {
-            lightPos.x = sin(time) * 5.0f;
-            lightPos.z = cos(time) * 5.0f;
-        }
-        if (isAnimatingModel) {
-            modelAngle += 30.0f * 0.016f; // approx delta time
+        float currentTime = (float)glfwGetTime();
+        float deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
+
+        if (!isPaused) {
+            if (animateLight) {
+                lightPos.x = sin(currentTime * 0.8f) * 5.0f;
+                lightPos.z = cos(currentTime * 0.8f) * 5.0f;
+            }
+            if (animateModel) {
+                modelRotationY += 25.0f * deltaTime;
+            }
         }
 
-        // Raycasting Logic
+        // ----- Vertex Picking -----
         if (performVertexPick) {
             performVertexPick = false;
-            int width, height;
-            glfwGetFramebufferSize(window.glfwWindow, &width, &height);
+            int w, h;
+            glfwGetFramebufferSize(window.glfwWindow, &w, &h);
 
-            // Normalized Device Coordinates
-            float x = (2.0f * pickX) / width - 1.0f;
-            float y = 1.0f - (2.0f * pickY) / height;
-            
-            glm::vec4 rayClip(x, y, -1.0f, 1.0f);
-            glm::mat4 proj = cam.getProjectionMatrix(width, height);
+            float ndcX = (2.0f * (float)pickX) / w - 1.0f;
+            float ndcY = 1.0f - (2.0f * (float)pickY) / h;
+
+            glm::vec4 rayClip(ndcX, ndcY, -1.0f, 1.0f);
+            glm::mat4 proj = cam.getProjectionMatrix(w, h);
             glm::vec4 rayEye = glm::inverse(proj) * rayClip;
             rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
-            
             glm::vec3 rayWorld = glm::normalize(glm::vec3(glm::inverse(cam.getViewMatrix()) * rayEye));
-            
-            glm::mat4 modelMat = glm::mat4(1.0f);
-            modelMat = glm::rotate(modelMat, glm::radians(modelAngle), glm::vec3(1.0f, 0.0f, 0.0f));
 
-            if (!model->meshes.empty()) {
-                int selected = getClosestVertex(cam.getPosition(), rayWorld, model->meshes[0]->geometry, modelMat);
-                if (selected != -1) {
-                    pickedVertex = selected;
-                    std::vector<float> dists = model->meshes[0]->geometry.fastMarching(selected);
+            glm::mat4 modelMat = glm::mat4(1.0f);
+            modelMat = glm::rotate(modelMat, glm::radians(modelRotationX), glm::vec3(1, 0, 0));
+            modelMat = glm::rotate(modelMat, glm::radians(modelRotationY), glm::vec3(0, 1, 0));
+
+            if (activeScene == 0 && !model->meshes.empty()) {
+                int sel = getClosestVertex(cam.getPosition(), rayWorld, model->meshes[0]->geometry, modelMat);
+                if (sel != -1) {
+                    pickedVertex = sel;
+                    std::cout << "[Pick] Vertex " << sel << " selected on Thesis model" << std::endl;
+                    auto dists = model->meshes[0]->geometry.fastMarching(sel);
                     model->meshes[0]->distances = dists;
-                    model->meshes[0]->setup(); // update VBO
-                    
+                    model->meshes[0]->setup();
                     globalMaxDist = 0.0f;
-                    for (float d : dists) {
+                    for (float d : dists)
                         if (d < 990000.0f && d > globalMaxDist) globalMaxDist = d;
-                    }
-                    renderMode = 1; // switch to heatmap
+                    renderMode = 1;
+                }
+            } else if (activeScene == 1) {
+                int sel = getClosestVertex(cam.getPosition(), rayWorld, torusMesh, modelMat);
+                if (sel != -1) {
+                    torusPickedVertex = sel;
+                    std::cout << "[Pick] Vertex " << sel << " selected on Torus" << std::endl;
+                    torusDistances = torusMesh.fastMarching(sel);
+                    torusMaxDist = 0.0f;
+                    for (float d : torusDistances)
+                        if (d < 990000.0f && d > torusMaxDist) torusMaxDist = d;
+
+                    // Update distance VBO
+                    torusVAO.bind();
+                    torusDistVBO = VBO(torusDistances.data(), torusDistances.size() * sizeof(float));
+                    torusVAO.linkAttrib(torusDistVBO, 3, 1, GL_FLOAT, sizeof(float), (void*)0);
+                    torusVAO.unbind();
+                    renderMode = 1;
                 }
             }
         }
 
+        // ----- ImGui Frame -----
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // 1. Shadow Pass
-        glm::mat4 lightProjection, lightView, lightSpaceMatrix;
-        float near_plane = 1.0f, far_plane = 20.0f;
-        lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-        lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-        lightSpaceMatrix = lightProjection * lightView;
+        // ----- Shadow Pass -----
+        glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 30.0f);
+        glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+        glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+
+        glm::mat4 modelMat = glm::mat4(1.0f);
+        modelMat = glm::rotate(modelMat, glm::radians(modelRotationX), glm::vec3(1, 0, 0));
+        modelMat = glm::rotate(modelMat, glm::radians(modelRotationY), glm::vec3(0, 1, 0));
 
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
-        
-        glm::mat4 modelMat = glm::mat4(1.0f);
-        modelMat = glm::rotate(modelMat, glm::radians(modelAngle), glm::vec3(1.0f, 0.0f, 0.0f));
-        
+
         depthShader.use();
         depthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         depthShader.setMat4("model", modelMat);
-        model->draw(depthShader);
+        if (activeScene == 0) {
+            model->draw(depthShader);
+        } else {
+            torusVAO.bind();
+            glDrawElements(GL_TRIANGLES, torusMesh.V.size(), GL_UNSIGNED_INT, 0);
+            torusVAO.unbind();
+        }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        // 2. Normal Render Pass
-        int width, height;
-        glfwGetFramebufferSize(window.glfwWindow, &width, &height);
-        glViewport(0, 0, width, height);
-        glClearColor(0.15f, 0.15f, 0.2f, 1.0f);
+        // ----- Main Render Pass -----
+        int scrW, scrH;
+        glfwGetFramebufferSize(window.glfwWindow, &scrW, &scrH);
+        glViewport(0, 0, scrW, scrH);
+        glClearColor(0.12f, 0.12f, 0.16f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         mainShader.use();
-        mainShader.setMat4("projection", cam.getProjectionMatrix(width, height));
+        mainShader.setMat4("projection", cam.getProjectionMatrix(scrW, scrH));
         mainShader.setMat4("view", cam.getViewMatrix());
         mainShader.setMat4("model", modelMat);
         mainShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-        
+
         mainShader.setVec3("lightPos", lightPos);
         mainShader.setVec3("viewPos", cam.getPosition());
         mainShader.setVec3("lightColor", lightColor);
-        
+
         mainShader.setInt("renderMode", renderMode);
-        mainShader.setFloat("maxDistance", globalMaxDist);
+        mainShader.setFloat("maxDistance", activeScene == 0 ? globalMaxDist : torusMaxDist);
 
         mainShader.setInt("diffuseMap", 0);
         mainShader.setInt("specularMap", 1);
-        mainShader.setInt("shadowMap", 3); // Binding 3
-        
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, depthMap);
-        
-        model->draw(mainShader);
+        mainShader.setInt("shadowMap", 3);
 
-        // --- GUI ---
-        ImGui::Begin("Project 1 Engine Control");
-        
-        if (ImGui::CollapsingHeader("Diagnostic Visualization", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::RadioButton("Textured/Lighting", &renderMode, 0);
-            ImGui::RadioButton("Distance Heatmap", &renderMode, 1);
-            ImGui::RadioButton("Surface Normals", &renderMode, 2);
-            ImGui::RadioButton("Shadow Depth", &renderMode, 3);
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, depthMapTex);
+
+        if (activeScene == 0) {
+            model->draw(mainShader);
+        } else {
+            mainShader.setBool("useDiffuseMap", false);
+            mainShader.setVec3("baseDiffuse", glm::vec3(0.7f, 0.75f, 0.8f));
+            mainShader.setBool("useSpecularMap", false);
+            mainShader.setVec3("baseSpecular", glm::vec3(0.3f, 0.3f, 0.3f));
+            mainShader.setBool("useNormalMap", false);
+            torusVAO.bind();
+            glDrawElements(GL_TRIANGLES, torusMesh.V.size(), GL_UNSIGNED_INT, 0);
+            torusVAO.unbind();
         }
 
+        // =====================================================================
+        // GUI
+        // =====================================================================
+        ImGui::SetNextWindowPos(ImVec2(16, 16), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(340, 0), ImGuiCond_FirstUseEver);
+
+        ImGui::Begin("Engine Control Panel");
+
+        // Scene Selector
+        if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::RadioButton("Thesis Building (OBJ)", &activeScene, 0);
+            ImGui::RadioButton("Procedural Torus", &activeScene, 1);
+        }
+
+        ImGui::Spacing();
+
+        // Visualization Modes
+        if (ImGui::CollapsingHeader("Diagnostic Visualization", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::RadioButton("Textured / Phong", &renderMode, 0);
+            ImGui::RadioButton("Distance Heatmap (FMM)", &renderMode, 1);
+            ImGui::RadioButton("Surface Normals", &renderMode, 2);
+            ImGui::RadioButton("Shadow Depth Map", &renderMode, 3);
+        }
+
+        ImGui::Spacing();
+
+        // Geometry Processing
         if (ImGui::CollapsingHeader("Geometry Processing", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::Text("Hold CTRL + Left Click on model to Pick a Vertex");
-            if (pickedVertex != -1) {
-                ImGui::TextColored(ImVec4(0, 1, 0, 1), "Picked Vertex ID: %d", pickedVertex);
-            } else {
-                ImGui::Text("No vertex selected.");
-            }
+            ImGui::TextWrapped("CTRL + Left Click on the model to pick a vertex (FMM seed).");
+            ImGui::Spacing();
+
+            int currentPick = (activeScene == 0) ? pickedVertex : torusPickedVertex;
+            if (currentPick != -1)
+                ImGui::TextColored(ImVec4(0.3f, 1.0f, 0.4f, 1.0f), "Picked Vertex: %d", currentPick);
+            else
+                ImGui::TextDisabled("No vertex selected.");
+
             ImGui::Separator();
-            ImGui::SliderInt("Target Triangles", &simplifyTarget, 10, 10000);
-            if (ImGui::Button("Simplify Mesh (QEM LOD)")) {
-                if (!model->meshes.empty()) {
-                    model->meshes[0]->geometry.simplifyMesh(simplifyTarget);
-                    model->meshes[0]->setup();
+            ImGui::Spacing();
+
+            if (activeScene == 0) {
+                ImGui::SliderInt("Target Tris", &simplifyTarget, 50, 10000);
+                if (ImGui::Button("Simplify Mesh (QEM LOD)")) {
+                    if (!model->meshes.empty()) {
+                        std::cout << "[QEM] Simplifying to " << simplifyTarget << " triangles..." << std::endl;
+                        model->meshes[0]->geometry.simplifyMesh(simplifyTarget);
+                        model->meshes[0]->geometry.recalculateNormals();
+                        model->meshes[0]->setup();
+                        std::cout << "[QEM] Done." << std::endl;
+                    }
                 }
             }
         }
 
-        if (ImGui::CollapsingHeader("Animation & Lighting", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::Checkbox("Animate Light", &isAnimatingLight);
-            ImGui::Checkbox("Animate Model", &isAnimatingModel);
-            ImGui::SliderFloat3("Light Pos", glm::value_ptr(lightPos), -10.0f, 10.0f);
+        ImGui::Spacing();
+
+        // Animation
+        if (ImGui::CollapsingHeader("Animation & Timeline", ImGuiTreeNodeFlags_DefaultOpen)) {
+            if (isPaused) {
+                if (ImGui::Button("Play")) isPaused = false;
+            } else {
+                if (ImGui::Button("Pause")) isPaused = true;
+            }
+            ImGui::SameLine();
+            ImGui::TextDisabled("%.1f FPS", io.Framerate);
+
+            ImGui::Checkbox("Orbit Light", &animateLight);
+            ImGui::Checkbox("Rotate Model", &animateModel);
+        }
+
+        ImGui::Spacing();
+
+        // Lighting
+        if (ImGui::CollapsingHeader("Lighting", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::SliderFloat3("Light Position", glm::value_ptr(lightPos), -10.0f, 10.0f);
             ImGui::ColorEdit3("Light Color", glm::value_ptr(lightColor));
+        }
+
+        ImGui::Spacing();
+
+        // Controls Reference
+        if (ImGui::CollapsingHeader("Controls")) {
+            ImGui::BulletText("Left Drag: Orbit camera");
+            ImGui::BulletText("Right Drag / Shift+Left: Pan");
+            ImGui::BulletText("Scroll: Zoom");
+            ImGui::BulletText("CTRL + Left Click: Vertex Pick");
+            ImGui::BulletText("ESC: Quit");
         }
 
         ImGui::End();
@@ -333,6 +512,7 @@ int main() {
         window.update();
     }
 
+    // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
