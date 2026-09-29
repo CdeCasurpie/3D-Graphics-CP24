@@ -205,8 +205,9 @@ private:
                 else if (!mat.bump_texname.empty())
                     submesh->normalMap = loadTexture((directory + mat.bump_texname).c_str());
             }
-            // Build half-edge topology for algorithms (FMM, simplification)
-            submesh->geometry.buildLevel1();
+            // Merge duplicate vertices (UV seams) so topology is fully connected for FMM.
+            // This internally calls buildLevel1() as well.
+            submesh->geometry.mergeDuplicateVertices();
 
             submesh->setup();
             meshes.push_back(submesh);
