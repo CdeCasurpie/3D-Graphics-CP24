@@ -8,6 +8,7 @@ find_package(OpenGL REQUIRED)
 
 include_directories(glad/include)
 include_directories(include)
+include_directories(include/imgui)
 
 # Target 1: Hello Triangle
 add_executable(HelloTriangle src/HelloTriangle/main.cpp glad/src/gl.c)
@@ -66,3 +67,16 @@ target_link_libraries(TexturesAndMaps glfw OpenGL::GL)
 # Target 13: Model Loading
 add_executable(ModelLoading src/ModelLoading/main.cpp glad/src/gl.c)
 target_link_libraries(ModelLoading glfw OpenGL::GL)
+
+# Project 1: Unified Interactive 3D Scene Viewer
+add_executable(Project1 
+    src/Project1/main.cpp 
+    glad/src/gl.c
+    src/imgui/imgui.cpp
+    src/imgui/imgui_draw.cpp
+    src/imgui/imgui_tables.cpp
+    src/imgui/imgui_widgets.cpp
+    src/imgui/imgui_impl_glfw.cpp
+    src/imgui/imgui_impl_opengl3.cpp
+)
+target_link_libraries(Project1 glfw OpenGL::GL)
