@@ -97,9 +97,13 @@ int getClosestVertex(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
 }
 
 // =====================================================================
-// GLFW Callbacks (route to Camera or ImGui)
+// GLFW Callbacks — forward to ImGui first, then handle camera
 // =====================================================================
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    // Forward to ImGui
+    ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+
+    // If ImGui wants the mouse, don't process camera/picking
     ImGuiIO& io = ImGui::GetIO();
     if (io.WantCaptureMouse) return;
 
@@ -131,6 +135,9 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 }
 
 void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
+    // Forward to ImGui
+    ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
+
     ImGuiIO& io = ImGui::GetIO();
     if (io.WantCaptureMouse) return;
 
@@ -144,9 +151,21 @@ void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+    // Forward to ImGui
+    ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
+
     ImGuiIO& io = ImGui::GetIO();
     if (io.WantCaptureMouse) return;
     cam.onScroll(yoffset);
+}
+
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    // Forward to ImGui
+    ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+}
+
+void charCallback(GLFWwindow* window, unsigned int c) {
+    ImGui_ImplGlfw_CharCallback(window, c);
 }
 
 // =====================================================================
@@ -192,19 +211,26 @@ int main() {
     // 16:9 landscape
     Window window(1280, 720, "Project 1: Interactive 3D Scene Viewer & Engine");
 
-    // ImGui
+    // Force size for tiling WMs like Hyprland
+    glfwSetWindowSizeLimits(window.glfwWindow, 1280, 720, 1280, 720);
+    glfwSetWindowSize(window.glfwWindow, 1280, 720);
+    glfwSetWindowAspectRatio(window.glfwWindow, 16, 9);
+
+    // ImGui — install_callbacks=false, we forward manually
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     setupImGuiStyle();
-    ImGui_ImplGlfw_InitForOpenGL(window.glfwWindow, true);
+    ImGui_ImplGlfw_InitForOpenGL(window.glfwWindow, false);  // false = we handle callbacks
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
-    // Override GLFW callbacks after ImGui installs its own
+    // Install our callbacks that forward to ImGui
     glfwSetMouseButtonCallback(window.glfwWindow, mouseButtonCallback);
     glfwSetCursorPosCallback(window.glfwWindow, cursorPosCallback);
     glfwSetScrollCallback(window.glfwWindow, scrollCallback);
+    glfwSetKeyCallback(window.glfwWindow, keyCallback);
+    glfwSetCharCallback(window.glfwWindow, charCallback);
 
     // Camera
     cam.reset(6.0f);
