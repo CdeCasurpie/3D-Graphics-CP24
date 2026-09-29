@@ -292,8 +292,34 @@ int main() {
     float globalMaxDist = 1.0f;
     int pickedVertex = -1;
 
-    int activeScene = 0; // 0=Thesis OBJ, 1=Torus
+    int activeScene = 0; // 0=OBJ Model, 1=Torus
     int torusPickedVertex = -1;
+
+    // Model path input buffer
+    static char modelPathBuf[512] = "assets/models/thesis/03_corner.obj";
+    std::string loadedModelName = "Thesis Building";
+
+    // Lambda to reload model from a path
+    auto reloadModel = [&](const std::string& path, const std::string& name) {
+        std::cout << "[Load] Loading: " << path << std::endl;
+        Model* newModel = new Model(path);
+        if (newModel->meshes.empty()) {
+            std::cerr << "[Load] Failed or empty model: " << path << std::endl;
+            delete newModel;
+            return;
+        }
+        delete model;
+        model = newModel;
+        loadedModelName = name;
+        pickedVertex = -1;
+        globalMaxDist = 1.0f;
+        renderMode = 0;
+        activeScene = 0;
+        cam.reset(6.0f);
+        strncpy(modelPathBuf, path.c_str(), sizeof(modelPathBuf) - 1);
+        std::cout << "[Load] Success! Meshes: " << model->meshes.size()
+                  << ", Vertices: " << model->meshes[0]->geometry.G.size() << std::endl;
+    };
 
     float lastTime = (float)glfwGetTime();
 
@@ -449,10 +475,39 @@ int main() {
 
         ImGui::Begin("Engine Control Panel");
 
-        // Scene Selector
-        if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::RadioButton("Thesis Building (OBJ)", &activeScene, 0);
+        // Scene Selector & Model Loader
+        if (ImGui::CollapsingHeader("Scene & Model Loader", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::RadioButton("Loaded OBJ Model", &activeScene, 0);
             ImGui::RadioButton("Procedural Torus", &activeScene, 1);
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            ImGui::TextDisabled("Current: %s", loadedModelName.c_str());
+            ImGui::InputText("OBJ Path", modelPathBuf, sizeof(modelPathBuf));
+            if (ImGui::Button("Load Model")) {
+                reloadModel(std::string(modelPathBuf), "Custom Model");
+            }
+
+            ImGui::Spacing();
+            ImGui::TextDisabled("Quick Load:");
+
+            float btnW = (ImGui::GetContentRegionAvail().x - 8) / 2.0f;
+            if (ImGui::Button("Stanford Bunny", ImVec2(btnW, 0))) {
+                reloadModel("assets/models/classic/bunny.obj", "Stanford Bunny");
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Utah Teapot", ImVec2(btnW, 0))) {
+                reloadModel("assets/models/classic/teapot.obj", "Utah Teapot");
+            }
+            if (ImGui::Button("Suzanne", ImVec2(btnW, 0))) {
+                reloadModel("assets/models/classic/suzanne.obj", "Suzanne (Monkey)");
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Thesis Corner", ImVec2(btnW, 0))) {
+                reloadModel("assets/models/thesis/03_corner.obj", "Thesis Building");
+            }
         }
 
         ImGui::Spacing();
