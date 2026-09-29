@@ -55,11 +55,42 @@ unsigned int loadTexture(char const* path) {
 #include <glm/gtc/type_ptr.hpp>
 
 // =====================================================================
-// Globals
+// Globals & Helper
 // =====================================================================
 Camera cam;
 bool performVertexPick = false;
 double pickX = 0, pickY = 0;
+
+void centerModelAndCamera(Model* m, Camera& c) {
+    if (!m || m->meshes.empty()) return;
+
+    // 1. Calculate Bounding Box
+    glm::vec3 min_p(1e9f), max_p(-1e9f);
+    for (auto mesh : m->meshes) {
+        for (const auto& v : mesh->geometry.G) {
+            min_p = glm::min(min_p, glm::vec3(v.Position.x, v.Position.y, v.Position.z));
+            max_p = glm::max(max_p, glm::vec3(v.Position.x, v.Position.y, v.Position.z));
+        }
+    }
+
+    // 2. Center Geometry
+    glm::vec3 center = (min_p + max_p) * 0.5f;
+    for (auto mesh : m->meshes) {
+        for (auto& v : mesh->geometry.G) {
+            v.Position.x -= center.x;
+            v.Position.y -= center.y;
+            v.Position.z -= center.z;
+        }
+        mesh->setup(); // Update VBOs
+    }
+
+    // 3. Adjust Camera Distance (fit bounding sphere in 80% of view)
+    float radius = glm::length(max_p - min_p) * 0.5f;
+    float fovRad = glm::radians(c.fov); // usually 45 degrees
+    float targetDist = (radius / 0.8f) / std::sin(fovRad * 0.5f);
+
+    c.reset(targetDist, glm::vec3(0.0f));
+}
 
 // =====================================================================
 // Vertex Picking via Raycasting
@@ -241,6 +272,7 @@ int main() {
 
     // Scene 1: Thesis Model (OBJ)
     Model* model = new Model("assets/models/thesis/03_corner.obj");
+    centerModelAndCamera(model, cam);
 
     // Scene 2: Procedural Torus (for FMM demo)
     EricStructure torusMesh;
@@ -315,7 +347,7 @@ int main() {
         globalMaxDist = 1.0f;
         renderMode = 0;
         activeScene = 0;
-        cam.reset(6.0f);
+        centerModelAndCamera(model, cam);
         strncpy(modelPathBuf, path.c_str(), sizeof(modelPathBuf) - 1);
         std::cout << "[Load] Success! Meshes: " << model->meshes.size()
                   << ", Vertices: " << model->meshes[0]->geometry.G.size() << std::endl;
