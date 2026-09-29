@@ -20,6 +20,9 @@ uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 lightColor;
 
+uniform float ambientStrength;
+uniform float materialShininess;
+
 // Visualization Modes
 uniform int renderMode; // 0 = Normal/Textured, 1 = Distance Heatmap, 2 = Normals, 3 = False-color Depth
 uniform float maxDistance;
@@ -85,7 +88,7 @@ void main() {
     vec3 color = useDiffuseMap ? texture(diffuseMap, TexCoords).rgb : baseDiffuse;
     vec3 specularColor = useSpecularMap ? texture(specularMap, TexCoords).rgb : baseSpecular;
     
-    vec3 ambient = 0.3 * color;
+    vec3 ambient = ambientStrength * color;
     
     vec3 normal = normalize(Normal);
     vec3 lightDir = normalize(lightPos - FragPos);
@@ -94,7 +97,7 @@ void main() {
     
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 halfwayDir = normalize(lightDir + viewDir);  
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), materialShininess);
     vec3 specular = spec * lightColor * specularColor;    
     
     float shadow = ShadowCalculation(FragPosLightSpace);       

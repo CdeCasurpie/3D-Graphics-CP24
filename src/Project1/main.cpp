@@ -57,9 +57,13 @@ unsigned int loadTexture(char const* path) {
 // =====================================================================
 // Globals & Helper
 // =====================================================================
+// globals
 Camera cam;
 bool performVertexPick = false;
 double pickX = 0, pickY = 0;
+
+float ambientStrength = 0.3f;
+float materialShininess = 32.0f;
 
 void centerModelAndCamera(Model* m, Camera& c) {
     if (!m || m->meshes.empty()) return;
@@ -476,6 +480,9 @@ int main() {
         mainShader.setVec3("viewPos", cam.getPosition());
         mainShader.setVec3("lightColor", lightColor);
 
+        mainShader.setFloat("ambientStrength", ambientStrength);
+        mainShader.setFloat("materialShininess", materialShininess);
+
         mainShader.setInt("renderMode", renderMode);
         mainShader.setFloat("maxDistance", activeScene == 0 ? globalMaxDist : torusMaxDist);
 
@@ -569,6 +576,12 @@ int main() {
             ImGui::Spacing();
 
             if (activeScene == 0) {
+                if (!model->meshes.empty()) {
+                    int numVerts = model->meshes[0]->geometry.G.size();
+                    int numTris = model->meshes[0]->geometry.V.size() / 3;
+                    ImGui::TextDisabled("Vertices: %d | Triangles: %d", numVerts, numTris);
+                }
+
                 ImGui::SliderInt("Target Tris", &simplifyTarget, 50, 10000);
                 if (ImGui::Button("Simplify Mesh (QEM LOD)")) {
                     if (!model->meshes.empty()) {
@@ -577,6 +590,15 @@ int main() {
                         model->meshes[0]->geometry.recalculateNormals();
                         model->meshes[0]->setup();
                         std::cout << "[QEM] Done." << std::endl;
+                    }
+                }
+                
+                ImGui::SameLine();
+                if (ImGui::Button("Recalc Normals")) {
+                    if (!model->meshes.empty()) {
+                        model->meshes[0]->geometry.recalculateNormals();
+                        model->meshes[0]->setup();
+                        std::cout << "[Geom] Normals recalculated." << std::endl;
                     }
                 }
             }
@@ -600,10 +622,16 @@ int main() {
 
         ImGui::Spacing();
 
-        // Lighting
-        if (ImGui::CollapsingHeader("Lighting", ImGuiTreeNodeFlags_DefaultOpen)) {
+        // Lighting & Material
+        if (ImGui::CollapsingHeader("Lighting & Material", ImGuiTreeNodeFlags_DefaultOpen)) {
             ImGui::SliderFloat3("Light Position", glm::value_ptr(lightPos), -10.0f, 10.0f);
             ImGui::ColorEdit3("Light Color", glm::value_ptr(lightColor));
+            
+            ImGui::Separator();
+            ImGui::Spacing();
+            
+            ImGui::SliderFloat("Ambient Strength", &ambientStrength, 0.0f, 1.0f);
+            ImGui::SliderFloat("Shininess", &materialShininess, 2.0f, 256.0f, "%.1f");
         }
 
         ImGui::Spacing();
