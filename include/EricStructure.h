@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <cmath>
 #include <iostream>
 #include <queue>
@@ -256,39 +257,58 @@ public:
 
     /**
      * @brief Merges duplicate vertices (same 3D position) to close topological seams.
-     * Critical for procedural shapes like spheres that duplicate vertices at poles/seams for UVs.
+     * Uses spatial hashing for O(n) performance instead of O(n²) brute force.
+     * Only needed for procedural meshes (spheres, tori) before simplification.
      */
     void mergeDuplicateVertices() {
+        // Spatial hash: quantize positions to grid cells
+        auto hashPos = [](const Vec3& p) -> size_t {
+            const float scale = 1e4f; // precision ~0.0001
+            int ix = (int)std::round(p.x * scale);
+            int iy = (int)std::round(p.y * scale);
+            int iz = (int)std::round(p.z * scale);
+            size_t h = std::hash<int>()(ix);
+            h ^= std::hash<int>()(iy) + 0x9e3779b9 + (h << 6) + (h >> 2);
+            h ^= std::hash<int>()(iz) + 0x9e3779b9 + (h << 6) + (h >> 2);
+            return h;
+        };
+
+        std::unordered_map<size_t, int> seen;
         std::vector<int> remap(G.size());
-        for(size_t i = 0; i < G.size(); ++i) {
-            remap[i] = i;
-            for(size_t j = 0; j < i; ++j) {
+        for (size_t i = 0; i < G.size(); ++i) {
+            size_t key = hashPos(G[i].Position);
+            auto it = seen.find(key);
+            if (it != seen.end()) {
+                // Verify it's truly the same position (hash collision guard)
+                int j = it->second;
                 float dx = G[i].Position.x - G[j].Position.x;
                 float dy = G[i].Position.y - G[j].Position.y;
                 float dz = G[i].Position.z - G[j].Position.z;
-                if (dx*dx + dy*dy + dz*dz < 1e-8f) { // Very small threshold
+                if (dx*dx + dy*dy + dz*dz < 1e-8f) {
                     remap[i] = j;
-                    break;
+                    continue;
                 }
             }
+            seen[key] = i;
+            remap[i] = i;
         }
-        for(size_t i = 0; i < V.size(); ++i) {
-            if(V[i] != (unsigned int)-1) {
+
+        for (size_t i = 0; i < V.size(); ++i) {
+            if (V[i] != (unsigned int)-1) {
                 V[i] = remap[V[i]];
             }
         }
-        // Remove completely degenerate triangles that collapsed to 0 area
+        // Remove degenerate triangles
         std::vector<unsigned int> newV;
-        for(size_t i = 0; i < V.size(); i += 3) {
-            if(V[i] != (unsigned int)-1) {
-                if(V[i] == V[i+1] || V[i+1] == V[i+2] || V[i] == V[i+2]) continue;
+        for (size_t i = 0; i < V.size(); i += 3) {
+            if (V[i] != (unsigned int)-1) {
+                if (V[i] == V[i+1] || V[i+1] == V[i+2] || V[i] == V[i+2]) continue;
                 newV.push_back(V[i]);
                 newV.push_back(V[i+1]);
                 newV.push_back(V[i+2]);
             }
         }
         V = newV;
-        // Rebuild half-edges to stitch the closed seams
         buildLevel1();
     }
 
@@ -688,7 +708,7 @@ private:
         buildLevel1();
     }
 
-private:
+public:
     /**
      * @brief Construye el arreglo 'O' (Opposites) emparejando las half-edges.
      */
