@@ -70,6 +70,10 @@ This module implements the Garland-Heckbert Quadric Error Metrics algorithm for 
 
 ## Build and Execution Instructions
 
+**Task 13: Shooting rays:** CPU primary-ray depth rendering is available through
+`make run-ShootingRays`. See [the assignment instructions](src/ShootingRays/README.md)
+for headless PNG generation, controls, and verification.
+
 The project uses CMake to generate the build files, but a Makefile is provided in the root directory for convenience.
 
 ### 1. Build the Project

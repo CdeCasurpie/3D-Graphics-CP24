@@ -80,3 +80,17 @@ add_executable(Project1
     src/imgui/imgui_impl_opengl3.cpp
 )
 target_link_libraries(Project1 glfw OpenGL::GL)
+
+# Task 13: primary-ray depth image (CPU tracing; OpenGL only displays pixels).
+find_package(Threads REQUIRED)
+add_executable(ShootingRays
+    src/ShootingRays/main.cpp
+    glad/src/gl.c
+    src/imgui/imgui.cpp
+    src/imgui/imgui_draw.cpp
+    src/imgui/imgui_tables.cpp
+    src/imgui/imgui_widgets.cpp
+    src/imgui/imgui_impl_glfw.cpp
+    src/imgui/imgui_impl_opengl3.cpp
+)
+target_link_libraries(ShootingRays glfw OpenGL::GL Threads::Threads)

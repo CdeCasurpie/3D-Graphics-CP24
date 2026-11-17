@@ -111,3 +111,14 @@ Project1:
 
 run-Project1: Project1
 	@./build/Project1
+
+.PHONY: ShootingRays run-ShootingRays test-ShootingRays
+ShootingRays:
+	@cmake -B build -DCMAKE_BUILD_TYPE=Release
+	@cmake --build build --target ShootingRays
+
+run-ShootingRays: ShootingRays
+	@./build/ShootingRays
+
+test-ShootingRays: ShootingRays
+	@./build/ShootingRays --self-test
