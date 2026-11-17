@@ -74,6 +74,10 @@ This module implements the Garland-Heckbert Quadric Error Metrics algorithm for 
 `make run-ShootingRays`. See [the assignment instructions](src/ShootingRays/README.md)
 for headless PNG generation, controls, and verification.
 
+**Task 14: Shooting rays CUDA:** see [the CUDA lab guide](src/ShootingRaysCUDA/README.md).
+On an NVIDIA/CUDA lab machine, `make lab-ShootingRaysCUDA` builds, validates,
+and generates the GPU-rendered submission image. CUDA is optional for normal builds.
+
 The project uses CMake to generate the build files, but a Makefile is provided in the root directory for convenience.
 
 ### 1. Build the Project

@@ -122,3 +122,19 @@ run-ShootingRays: ShootingRays
 
 test-ShootingRays: ShootingRays
 	@./build/ShootingRays --self-test
+
+.PHONY: test-CudaRayMath ShootingRaysCUDA run-ShootingRaysCUDA lab-ShootingRaysCUDA
+test-CudaRayMath:
+	@cmake -B build -DCMAKE_BUILD_TYPE=Release
+	@cmake --build build --target CudaRayMathTests
+	@./build/CudaRayMathTests
+
+ShootingRaysCUDA:
+	@cmake -S . -B build-cuda -DENABLE_CUDA_RAYCASTER=ON -DCMAKE_BUILD_TYPE=Release
+	@cmake --build build-cuda --target ShootingRaysCUDA -j
+
+run-ShootingRaysCUDA: ShootingRaysCUDA
+	@./build-cuda/ShootingRaysCUDA --render 960 540
+
+lab-ShootingRaysCUDA:
+	@bash scripts/run_shooting_rays_cuda.sh

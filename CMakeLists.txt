@@ -94,3 +94,36 @@ add_executable(ShootingRays
     src/imgui/imgui_impl_opengl3.cpp
 )
 target_link_libraries(ShootingRays glfw OpenGL::GL Threads::Threads)
+
+# Portable CUDA arithmetic checks can run on a laptop without the toolkit/GPU.
+add_executable(CudaRayMathTests EXCLUDE_FROM_ALL src/ShootingRaysCUDA/host_tests.cpp)
+target_link_libraries(CudaRayMathTests Threads::Threads)
+
+option(ENABLE_CUDA_RAYCASTER "Build Task 14 (requires NVIDIA CUDA toolkit and GPU)" OFF)
+if(ENABLE_CUDA_RAYCASTER)
+    if(CMAKE_VERSION VERSION_LESS 3.24)
+        message(FATAL_ERROR "Task 14 requires CMake >= 3.24 (native GPU architecture detection)")
+    endif()
+    include(CheckLanguage)
+    check_language(CUDA)
+    if(NOT CMAKE_CUDA_COMPILER)
+        message(FATAL_ERROR "Task 14 needs nvcc. Install/load the CUDA toolkit, or configure with -DENABLE_CUDA_RAYCASTER=OFF. See src/ShootingRaysCUDA/README.md")
+    endif()
+    if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+        set(CMAKE_CUDA_ARCHITECTURES native)
+    endif()
+    cmake_policy(SET CMP0104 NEW)
+    enable_language(CUDA)
+    find_package(CUDAToolkit REQUIRED)
+    add_executable(ShootingRaysCUDA
+        src/ShootingRaysCUDA/main.cpp
+        src/ShootingRaysCUDA/CudaRayCaster.cu
+    )
+    set_target_properties(ShootingRaysCUDA PROPERTIES
+        CUDA_STANDARD 17
+        CUDA_STANDARD_REQUIRED ON
+    )
+    target_link_libraries(ShootingRaysCUDA CUDA::cudart Threads::Threads)
+    # Favor reproducible CPU/GPU comparisons over aggressive float contraction.
+    target_compile_options(ShootingRaysCUDA PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--fmad=false>)
+endif()
