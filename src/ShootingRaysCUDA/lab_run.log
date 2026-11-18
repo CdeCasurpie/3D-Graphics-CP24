@@ -1,0 +1,138 @@
+Lab run UTC: 2026-11-18T13:37:45Z
+fba79c01fe40624762d95c127241dd5f083e5d09
+?? src/ShootingRaysCUDA/depth_map.png
+?? src/ShootingRaysCUDA/depth_map.png.txt
+?? src/ShootingRaysCUDA/lab_run.log
+Wed Nov 18 08:37:46 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 595.99.02              Driver Version: 595.99.02      CUDA Version: 13.2     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX PRO 4000 Blac...    Off |   00000000:01:00.0 Off |                  Off |
+| 30%   35C    P8              5W /  145W |      15MiB /  24467MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A            2046      G   /usr/lib/xorg/Xorg                        4MiB |
++-----------------------------------------------------------------------------------------+
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2025 NVIDIA Corporation
+Built on Wed_Aug_20_01:58:59_PM_PDT_2025
+Cuda compilation tools, release 13.0, V13.0.88
+Build cuda_13.0.r13.0/compiler.36424714_0
+cmake version 3.28.3
+
+CMake suite maintained and supported by Kitware (kitware.com/cmake).
+CMake Warning (dev) at /usr/share/cmake-3.28/Modules/FindOpenGL.cmake:381 (message):
+  Policy CMP0072 is not set: FindOpenGL prefers GLVND by default when
+  available.  Run "cmake --help-policy CMP0072" for policy details.  Use the
+  cmake_policy command to set the policy and suppress this warning.
+
+  FindOpenGL found both a legacy GL library:
+
+    OPENGL_gl_LIBRARY: /usr/lib/x86_64-linux-gnu/libGL.so
+
+  and GLVND libraries for OpenGL and GLX:
+
+    OPENGL_opengl_LIBRARY: /usr/lib/x86_64-linux-gnu/libOpenGL.so
+    OPENGL_glx_LIBRARY: /usr/lib/x86_64-linux-gnu/libGLX.so
+
+  OpenGL_GL_PREFERENCE has not been set to "GLVND" or "LEGACY", so for
+  compatibility with CMake 3.10 and below the legacy GL library will be used.
+Call Stack (most recent call first):
+  CMakeLists.txt:7 (find_package)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/utec_alumno/3D-Graphics-CP24/build-cuda
+gmake[1]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda'
+gmake[2]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda'
+gmake[3]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda'
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda'
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda'
+[100%] Built target ShootingRaysCUDA
+gmake[3]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda'
+gmake[2]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda'
+gmake[2]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda'
+gmake[3]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda'
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda'
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda'
+[100%] Built target CudaRayMathTests
+gmake[3]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda'
+gmake[2]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda'
+gmake[1]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda'
+Compared 56743 pixels: hit-mask mismatches=0, distance failures=0, max absolute error=0
+Compared 14400 pixels: hit-mask mismatches=0, distance failures=0, max absolute error=0
+Compared 1 pixels: hit-mask mismatches=0, distance failures=0, max absolute error=0
+Host-only portable math tests passed. This does NOT test NVCC or a CUDA GPU.
+Backend: CUDA (no CPU fallback)
+Device 0: NVIDIA RTX PRO 4000 Blackwell
+Compute capability: 12.0
+Global memory: 23987 MiB
+Driver API version: 13020 | CUDA runtime: 13000
+Backend: CUDA (no CPU fallback)
+Device 0: NVIDIA RTX PRO 4000 Blackwell
+Compute capability: 12.0
+Global memory: 23987 MiB
+Driver API version: 13020 | CUDA runtime: 13000
+CUDA kernel intersection self-tests PASSED.
+Backend: CUDA (no CPU fallback)
+Device 0: NVIDIA RTX PRO 4000 Blackwell
+Compute capability: 12.0
+Global memory: 23987 MiB
+Driver API version: 13020 | CUDA runtime: 13000
+Compared 56743 pixels: hit-mask mismatches=0, distance failures=0, max absolute error=0
+Compared 14400 pixels: hit-mask mismatches=0, distance failures=0, max absolute error=0
+Compared 1 pixels: hit-mask mismatches=0, distance failures=0, max absolute error=0
+CUDA validation PASSED.
+========= COMPUTE-SANITIZER
+Backend: CUDA (no CPU fallback)
+Device 0: NVIDIA RTX PRO 4000 Blackwell
+Compute capability: 12.0
+Global memory: 23987 MiB
+Driver API version: 13020 | CUDA runtime: 13000
+CUDA kernel intersection self-tests PASSED.
+========= ERROR SUMMARY: 0 errors
+========= COMPUTE-SANITIZER
+Backend: CUDA (no CPU fallback)
+Device 0: NVIDIA RTX PRO 4000 Blackwell
+Compute capability: 12.0
+Global memory: 23987 MiB
+Driver API version: 13020 | CUDA runtime: 13000
+Compared 56743 pixels: hit-mask mismatches=0, distance failures=0, max absolute error=0
+Compared 14400 pixels: hit-mask mismatches=0, distance failures=0, max absolute error=0
+Compared 1 pixels: hit-mask mismatches=0, distance failures=0, max absolute error=0
+CUDA validation PASSED.
+========= ERROR SUMMARY: 0 errors
+Backend: CUDA (no CPU fallback)
+Device 0: NVIDIA RTX PRO 4000 Blackwell
+Compute capability: 12.0
+Global memory: 23987 MiB
+Driver API version: 13020 | CUDA runtime: 13000
+Backend: CUDA (no CPU fallback)
+Device 0: NVIDIA RTX PRO 4000 Blackwell
+Compute capability: 12.0
+Global memory: 23987 MiB
+Driver API version: 13020 | CUDA runtime: 13000
+Image: 960x540 | Triangles: 962 | Hits: 119923
+Depth range: 16.2385 - 33.2668
+Mapping: near dark / far light; floor=0.08; misses=black
+Warm-up: one 32x18 GPU render
+Upload ms: 0.0069
+CUDA kernel ms (events): 2.5631
+Download ms: 0.1942
+Render call ms (allocation + upload + kernel + download; excludes cleanup): 3.4847
+Wall ms (render + normalization; excludes scene, warm-up, PNG encoding): 4.4269
+Saved CUDA image: src/ShootingRaysCUDA/depth_map.png
+Saved metadata: src/ShootingRaysCUDA/depth_map.png.txt
+SUCCESS: CUDA validation passed and a new GPU-rendered image was generated.
+Inspect src/ShootingRaysCUDA/depth_map.png before submitting. No commit or push has been performed.

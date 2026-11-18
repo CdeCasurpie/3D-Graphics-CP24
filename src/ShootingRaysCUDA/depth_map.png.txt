@@ -1,0 +1,14 @@
+Backend: CUDA (no CPU fallback)
+Device 0: NVIDIA RTX PRO 4000 Blackwell
+Compute capability: 12.0
+Global memory: 23987 MiB
+Driver API version: 13020 | CUDA runtime: 13000
+Image: 960x540 | Triangles: 962 | Hits: 119923
+Depth range: 16.2385 - 33.2668
+Mapping: near dark / far light; floor=0.08; misses=black
+Warm-up: one 32x18 GPU render
+Upload ms: 0.0069
+CUDA kernel ms (events): 2.5631
+Download ms: 0.1942
+Render call ms (allocation + upload + kernel + download; excludes cleanup): 3.4847
+Wall ms (render + normalization; excludes scene, warm-up, PNG encoding): 4.4269

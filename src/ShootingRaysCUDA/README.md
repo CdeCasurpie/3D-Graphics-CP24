@@ -5,12 +5,12 @@ brute-force two-sided Moller–Trumbore intersections, and nearest surface dista
 No BVH, k-d tree, rasterized depth, or CPU fallback is used. The scene and camera
 are shared with Task 13 through `../ShootingRays/Scene.h`.
 
-**Status before the lab:** source and lab workflow are prepared. Host arithmetic
-tests can run without CUDA. NVCC compilation, GPU tests, timings, and the actual
-Task 14 image must be verified/generated on an NVIDIA GPU. Task 13's image is
-not copied here or presented as CUDA output.
+**Verified on 2026-11-18:** built and executed with CUDA 13.0 on an NVIDIA RTX PRO
+4000 Blackwell. CPU/GPU validation passed and Compute Sanitizer reported zero
+errors. The actual GPU-generated [submission image](depth_map.png), [results
+report](RESULTS.md), timing metadata, and lab log are included.
 
-## Tomorrow: one-command lab run
+## Reproduce: one-command lab run
 
 Bring this working tree to the lab (commit/push the code before leaving, or copy
 the repository including these new files). Run from the repository root:
