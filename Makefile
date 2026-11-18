@@ -153,3 +153,17 @@ SimplePathTracerCUDA:
 
 lab-SimplePathTracer:
 	@bash scripts/run_simple_path_tracer.sh
+
+.PHONY: RealtimePathTracer test-RealtimePathTracer run-RealtimePathTracer lab-RealtimePathTracer
+RealtimePathTracer:
+	@cmake -S src/RealtimePathTracer -B build/realtime-path-tracer -DCMAKE_BUILD_TYPE=Release
+	@cmake --build build/realtime-path-tracer -j 4
+
+test-RealtimePathTracer: RealtimePathTracer
+	@./build/realtime-path-tracer/PathTracer --self-test
+
+run-RealtimePathTracer: RealtimePathTracer
+	@./build/realtime-path-tracer/PathTracerViewer --viewer
+
+lab-RealtimePathTracer:
+	@bash scripts/run_realtime_path_tracer.sh

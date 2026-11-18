@@ -70,6 +70,11 @@ This module implements the Garland-Heckbert Quadric Error Metrics algorithm for 
 
 ## Build and Execution Instructions
 
+**Task 16: Real-time Embree/OptiX path tracing:** `make run-RealtimePathTracer`
+for the local Embree viewer; `OPTIX_ROOT=/path/to/sdk make lab-RealtimePathTracer`
+for lab validation, FPS benchmarks and camera-demo recording.
+See [setup and submission instructions](src/RealtimePathTracer/README.md).
+
 **Task 15: Simple diffuse path tracer:** CPU and optional CUDA implementations,
 with a same-machine lab benchmark workflow: [instructions](src/SimplePathTracer/README.md).
 Run `make lab-SimplePathTracer` on the lab's CUDA computer.
