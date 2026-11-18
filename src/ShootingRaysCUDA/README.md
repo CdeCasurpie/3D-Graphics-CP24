@@ -12,6 +12,8 @@ report](RESULTS.md), timing metadata, and lab log are included.
 
 ## CPU vs CUDA: recorded times in seconds
 
+[Download the comparison table as an image](comparison_table.png).
+
 Same scene (962 triangles) and image resolution (960 × 540), but different
 machines and timing scopes; these are individual observations, not an averaged
 or controlled speedup benchmark.
