@@ -1,0 +1,209 @@
+Task 16 lab UTC: 2026-11-18T13:58:02Z
+fba79c01fe40624762d95c127241dd5f083e5d09
+ M src/RealtimePathTracer/CMakeLists.txt
+ M src/RealtimePathTracer/OptixBackend.cpp
+?? src/RealtimePathTracer/output/
+?? src/ShootingRaysCUDA/depth_map.png
+?? src/ShootingRaysCUDA/depth_map.png.txt
+?? src/ShootingRaysCUDA/lab_run.log
+?? src/SimplePathTracer/output/
+Wed Nov 18 08:58:02 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 595.99.02              Driver Version: 595.99.02      CUDA Version: 13.2     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX PRO 4000 Blac...    Off |   00000000:01:00.0 Off |                  Off |
+| 30%   35C    P8              5W /  145W |      15MiB /  24467MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A            2046      G   /usr/lib/xorg/Xorg                        4MiB |
++-----------------------------------------------------------------------------------------+
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2025 NVIDIA Corporation
+Built on Wed_Aug_20_01:58:59_PM_PDT_2025
+Cuda compilation tools, release 13.0, V13.0.88
+Build cuda_13.0.r13.0/compiler.36424714_0
+cmake version 3.28.3
+
+CMake suite maintained and supported by Kitware (kitware.com/cmake).
+Arquitectura:                            x86_64
+modo(s) de operación de las CPUs:        32-bit, 64-bit
+Address sizes:                           46 bits physical, 48 bits virtual
+Orden de los bytes:                      Little Endian
+CPU(s):                                  24
+Lista de la(s) CPU(s) en línea:          0-23
+ID de fabricante:                        GenuineIntel
+Nombre del modelo:                       Intel(R) Core(TM) Ultra 9 285K
+Familia de CPU:                          6
+Modelo:                                  198
+Hilo(s) de procesamiento por núcleo:     1
+Núcleo(s) por «socket»:                  24
+«Socket(s)»                              1
+Revisión:                                2
+CPU(s) scaling MHz:                      24%
+CPU MHz máx.:                            5700,0000
+CPU MHz mín.:                            800,0000
+BogoMIPS:                                7372,80
+Indicadores:                             fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf tsc_known_freq pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdt_a rdseed adx smap clflushopt clwb intel_pt sha_ni xsaveopt xsavec xgetbv1 xsaves split_lock_detect user_shstk avx_vnni lam wbnoinvd dtherm ida arat pln pts hwp hwp_notify hwp_act_window hwp_epp hwp_pkg_req hfi vnmi umip pku ospke waitpkg gfni vaes vpclmulqdq rdpid bus_lock_detect movdiri movdir64b fsrm md_clear serialize pconfig arch_lbr ibt flush_l1d arch_capabilities
+Virtualización:                          VT-x
+Caché L1d:                               768 KiB (20 instances)
+Caché L1i:                               1,3 MiB (20 instances)
+Caché L2:                                40 MiB (12 instances)
+Caché L3:                                36 MiB (1 instance)
+Modo(s) NUMA:                            1
+CPU(s) del nodo NUMA 0:                  0-23
+Vulnerability Gather data sampling:      Not affected
+Vulnerability Ghostwrite:                Not affected
+Vulnerability Indirect target selection: Not affected
+Vulnerability Itlb multihit:             Not affected
+Vulnerability L1tf:                      Not affected
+Vulnerability Mds:                       Not affected
+Vulnerability Meltdown:                  Not affected
+Vulnerability Mmio stale data:           Not affected
+Vulnerability Old microcode:             Not affected
+Vulnerability Reg file data sampling:    Not affected
+Vulnerability Retbleed:                  Not affected
+Vulnerability Spec rstack overflow:      Not affected
+Vulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:                Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS Not affected; BHI BHI_DIS_S
+Vulnerability Srbds:                     Not affected
+Vulnerability Tsa:                       Not affected
+Vulnerability Tsx async abort:           Not affected
+Vulnerability Vmscape:                   Mitigation; IBPB before exit to userspace
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer
+gmake[1]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[2]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[3]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+[ 12%] Generating PathTracerKernel.optixir
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+[ 12%] Built target RealtimeDeviceModule
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+[ 37%] Building CXX object CMakeFiles/RealtimeCore.dir/tests.cpp.o
+[ 37%] Building CXX object CMakeFiles/RealtimeCore.dir/IO.cpp.o
+[ 50%] Building CXX object CMakeFiles/RealtimeCore.dir/EmbreeBackend.cpp.o
+[ 62%] Building CXX object CMakeFiles/RealtimeCore.dir/OptixBackend.cpp.o
+[ 75%] Linking CXX static library libRealtimeCore.a
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+[ 75%] Built target RealtimeCore
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+[ 87%] Building CXX object CMakeFiles/PathTracer.dir/main.cpp.o
+[100%] Linking CXX executable PathTracer
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+[100%] Built target PathTracer
+gmake[3]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[2]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[2]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[3]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+[  6%] Built target RealtimeDeviceModule
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+[ 37%] Built target RealtimeCore
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+[ 43%] Building CXX object CMakeFiles/PathTracerViewer.dir/main.cpp.o
+[ 50%] Building CXX object CMakeFiles/PathTracerViewer.dir/Viewer.cpp.o
+[ 56%] Building C object CMakeFiles/PathTracerViewer.dir/home/utec_alumno/3D-Graphics-CP24/glad/src/gl.c.o
+[ 62%] Building CXX object CMakeFiles/PathTracerViewer.dir/home/utec_alumno/3D-Graphics-CP24/src/imgui/imgui.cpp.o
+[ 68%] Building CXX object CMakeFiles/PathTracerViewer.dir/home/utec_alumno/3D-Graphics-CP24/src/imgui/imgui_draw.cpp.o
+[ 75%] Building CXX object CMakeFiles/PathTracerViewer.dir/home/utec_alumno/3D-Graphics-CP24/src/imgui/imgui_tables.cpp.o
+[ 81%] Building CXX object CMakeFiles/PathTracerViewer.dir/home/utec_alumno/3D-Graphics-CP24/src/imgui/imgui_widgets.cpp.o
+[ 87%] Building CXX object CMakeFiles/PathTracerViewer.dir/home/utec_alumno/3D-Graphics-CP24/src/imgui/imgui_impl_glfw.cpp.o
+[ 93%] Building CXX object CMakeFiles/PathTracerViewer.dir/home/utec_alumno/3D-Graphics-CP24/src/imgui/imgui_impl_opengl3.cpp.o
+[100%] Linking CXX executable PathTracerViewer
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+[100%] Built target PathTracerViewer
+gmake[3]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[2]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+gmake[1]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/realtime-path-tracer'
+Intel Embree 4.3.0 | CPU workers=24 | acceleration/context build=0.00190158 s
+PASS: Intel Embree 4.3.0 | CPU workers=24; reference intersections, Fresnel/TIR, finite RGB, accumulation.
+NVIDIA OptiX SDK 90100 | NVIDIA RTX PRO 4000 Blackwell | driver API=13020 | acceleration/context build=0.586004 s
+PASS: NVIDIA OptiX SDK 90100 | NVIDIA RTX PRO 4000 Blackwell | driver API=13020; reference intersections, Fresnel/TIR, finite RGB, accumulation.
+Intel Embree 4.3.0 | CPU workers=24 | acceleration/context build=0.00194462 s
+PASS: Intel Embree 4.3.0 | CPU workers=24; reference intersections, Fresnel/TIR, finite RGB, accumulation.
+PASS: NVIDIA OptiX SDK 90100 | NVIDIA RTX PRO 4000 Blackwell | driver API=13020; reference intersections, Fresnel/TIR, finite RGB, accumulation.
+Linear RGB comparison: RMSE=3.41285e-05 reference RMS=1.21123 max abs=0.00316614
+========= COMPUTE-SANITIZER
+NVIDIA OptiX SDK 90100 | NVIDIA RTX PRO 4000 Blackwell | driver API=13020 | acceleration/context build=0.269475 s
+PASS: NVIDIA OptiX SDK 90100 | NVIDIA RTX PRO 4000 Blackwell | driver API=13020; reference intersections, Fresnel/TIR, finite RGB, accumulation.
+========= ERROR SUMMARY: 0 errors
+Intel Embree 4.3.0 | CPU workers=24 | acceleration/context build=0.00191285 s
+Benchmark 30/120
+Benchmark 60/120
+Benchmark 90/120
+Benchmark 120/120
+Intel Embree 4.3.0 | CPU workers=24
+Triangles=4440 | 640x480 | samples/frame=1 | bounces=8 | seed=42
+Acceleration/context build seconds=0.00191285
+Frames=120 | warmup=10
+Mean FPS=87.6757
+Median frame seconds=0.0113857
+Median frame FPS=87.8294
+p95 frame seconds=0.0120963
+Scope: output allocation + tracing + readback; excludes BVH/pipeline build, warmup, PNG and display.
+OptiX retains scene/output allocations across frames; CPU includes thread startup/join.
+Intel Embree 4.3.0 | CPU workers=24 | acceleration/context build=0.00135176 s
+Intel Embree 4.3.0 | CPU workers=24
+Triangles=4440 | 960x720 | samples/frame=256 | bounces=8 | seed=42
+Acceleration/context build seconds=0.00135176
+Render seconds=5.95023 | FPS=0.168061
+Saved src/RealtimePathTracer/output/lab-20261118T135802Z-16052/embree/render.png
+NVIDIA OptiX SDK 90100 | NVIDIA RTX PRO 4000 Blackwell | driver API=13020 | acceleration/context build=0.310986 s
+Benchmark 30/120
+Benchmark 60/120
+Benchmark 90/120
+Benchmark 120/120
+NVIDIA OptiX SDK 90100 | NVIDIA RTX PRO 4000 Blackwell | driver API=13020
+Triangles=4440 | 640x480 | samples/frame=1 | bounces=8 | seed=42
+Acceleration/context build seconds=0.310986
+Frames=120 | warmup=10
+Mean FPS=1066.27
+Median frame seconds=0.000929501
+Median frame FPS=1075.85
+p95 frame seconds=0.000942098
+Scope: output allocation + tracing + readback; excludes BVH/pipeline build, warmup, PNG and display.
+OptiX retains scene/output allocations across frames; CPU includes thread startup/join.
+NVIDIA OptiX SDK 90100 | NVIDIA RTX PRO 4000 Blackwell | driver API=13020 | acceleration/context build=0.193902 s
+NVIDIA OptiX SDK 90100 | NVIDIA RTX PRO 4000 Blackwell | driver API=13020
+Triangles=4440 | 960x720 | samples/frame=256 | bounces=8 | seed=42
+Acceleration/context build seconds=0.193902
+Render seconds=0.250045 | FPS=3.99928
+Saved src/RealtimePathTracer/output/lab-20261118T135802Z-16052/optix/render.png
+Embree median frame FPS: 87.829424
+OptiX median frame FPS: 1075.846072
+OptiX/Embree median-frame-FPS ratio: 12.249267x
+Same machine/settings. Headless render + readback only, not display FPS.
+See backend summaries for dimensions, spp, bounce limit and build times.
+
+Intel Embree 4.3.0 | CPU workers=24 | acceleration/context build=0.00148788 s
+Viewer smoke test PASSED: camera changed and accelerated frames displayed.
+Intel Embree 4.3.0 | CPU workers=24 | acceleration/context build=0.00139411 s
+Saved src/RealtimePathTracer/output/lab-20261118T135802Z-16052/embree/demo.mp4; actual framebuffer captures with measured timing, not offline frames.
+NVIDIA OptiX SDK 90100 | NVIDIA RTX PRO 4000 Blackwell | driver API=13020 | acceleration/context build=0.318436 s
+Viewer smoke test PASSED: camera changed and accelerated frames displayed.
+NVIDIA OptiX SDK 90100 | NVIDIA RTX PRO 4000 Blackwell | driver API=13020 | acceleration/context build=0.201834 s
+Saved src/RealtimePathTracer/output/lab-20261118T135802Z-16052/optix/demo.mp4; actual framebuffer captures with measured timing, not offline frames.
+Inspect and upload src/RealtimePathTracer/output/lab-20261118T135802Z-16052/demo.mp4; automated camera tours are labeled honestly.
+SUCCESS: src/RealtimePathTracer/output/lab-20261118T135802Z-16052 (no commit, push, or upload performed)

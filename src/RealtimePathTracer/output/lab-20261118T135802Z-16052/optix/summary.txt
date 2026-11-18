@@ -1,0 +1,10 @@
+NVIDIA OptiX SDK 90100 | NVIDIA RTX PRO 4000 Blackwell | driver API=13020
+Triangles=4440 | 640x480 | samples/frame=1 | bounces=8 | seed=42
+Acceleration/context build seconds=0.310986
+Frames=120 | warmup=10
+Mean FPS=1066.27
+Median frame seconds=0.000929501
+Median frame FPS=1075.85
+p95 frame seconds=0.000942098
+Scope: output allocation + tracing + readback; excludes BVH/pipeline build, warmup, PNG and display.
+OptiX retains scene/output allocations across frames; CPU includes thread startup/join.

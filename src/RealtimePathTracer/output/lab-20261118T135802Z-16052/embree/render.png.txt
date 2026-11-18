@@ -1,0 +1,4 @@
+Intel Embree 4.3.0 | CPU workers=24
+Triangles=4440 | 960x720 | samples/frame=256 | bounces=8 | seed=42
+Acceleration/context build seconds=0.00135176
+Render seconds=5.95023 | FPS=0.168061

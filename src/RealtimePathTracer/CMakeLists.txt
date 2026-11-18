@@ -21,23 +21,26 @@ if(ENABLE_OPTIX)
     if(NOT OPTIX_COMPUTE_ARCH MATCHES "^[0-9]+$")
         message(FATAL_ERROR "OPTIX_COMPUTE_ARCH must be digits, for example 75 or 86")
     endif()
-    set(PTX_FILE "${CMAKE_CURRENT_BINARY_DIR}/PathTracerKernel.ptx")
+    set(OPTIX_MODULE_FILE "${CMAKE_CURRENT_BINARY_DIR}/PathTracerKernel.optixir")
     set(HOST_COMPILER_OPTION)
     if(CMAKE_CUDA_HOST_COMPILER)
         list(APPEND HOST_COMPILER_OPTION -ccbin "${CMAKE_CUDA_HOST_COMPILER}")
     endif()
-    add_custom_command(OUTPUT "${PTX_FILE}"
-        COMMAND "${CUDAToolkit_NVCC_EXECUTABLE}" --ptx --std=c++17 --fmad=false -O3 -lineinfo
+    add_custom_command(OUTPUT "${OPTIX_MODULE_FILE}"
+        # OptiX IR preserves intrinsics for OptiX's JIT. CUDA 13 validates PTX
+        # with ptxas and rejects those intentionally unresolved OptiX calls.
+        COMMAND "${CUDAToolkit_NVCC_EXECUTABLE}" --optix-ir --std=c++17 --fmad=false -O3 -lineinfo
             "--gpu-architecture=compute_${OPTIX_COMPUTE_ARCH}" ${HOST_COMPILER_OPTION}
-            "-I${OPTIX_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/PathTracerKernel.cu" -o "${PTX_FILE}"
+            "-I${OPTIX_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/PathTracerKernel.cu" -o "${OPTIX_MODULE_FILE}"
         DEPENDS PathTracerKernel.cu LaunchParams.h Core.h ../SimplePathTracer/TracerCore.h ../ShootingRaysCUDA/CudaMath.h
         VERBATIM)
-    add_custom_target(RealtimePTX DEPENDS "${PTX_FILE}")
+    add_custom_target(RealtimeDeviceModule DEPENDS "${OPTIX_MODULE_FILE}")
     target_sources(RealtimeCore PRIVATE OptixBackend.cpp)
     target_include_directories(RealtimeCore PRIVATE "${OPTIX_INCLUDE_DIR}")
-    target_compile_definitions(RealtimeCore PUBLIC REALTIME_OPTIX=1 REALTIME_PTX_PATH="${PTX_FILE}")
+    # Keep the original macro/CLI name compatible; OptiX accepts PTX or IR.
+    target_compile_definitions(RealtimeCore PUBLIC REALTIME_OPTIX=1 REALTIME_PTX_PATH="${OPTIX_MODULE_FILE}")
     target_link_libraries(RealtimeCore PUBLIC CUDA::cuda_driver ${CMAKE_DL_LIBS})
-    add_dependencies(RealtimeCore RealtimePTX)
+    add_dependencies(RealtimeCore RealtimeDeviceModule)
 endif()
 add_executable(PathTracer main.cpp)
 target_link_libraries(PathTracer PRIVATE RealtimeCore)

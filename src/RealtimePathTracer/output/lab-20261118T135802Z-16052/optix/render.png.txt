@@ -1,0 +1,4 @@
+NVIDIA OptiX SDK 90100 | NVIDIA RTX PRO 4000 Blackwell | driver API=13020
+Triangles=4440 | 960x720 | samples/frame=256 | bounces=8 | seed=42
+Acceleration/context build seconds=0.193902
+Render seconds=0.250045 | FPS=3.99928

@@ -4,14 +4,12 @@ Progressive path tracing with **diffuse walls, an ideal specular mirror sphere,
 and a dielectric glass sphere**. Embree 4 accelerates CPU intersections; OptiX
 accelerates GPU intersections. Neither production backend scans triangles.
 
-**Local status:** Embree rendering, intersection/material tests, camera-motion
-viewer smoke tests, and PNG output can be verified on the laptop. The OptiX
-host source has been syntax-checked against NVIDIA's public SDK headers, and
-the device source can be compiled to PTX with Clang and temporary CUDA headers.
-This is **not** NVCC, OptiX-driver, or NVIDIA GPU runtime validation. Complete
-the lab checks before presenting an OptiX image or claiming GPU FPS.
+**Verified lab run (November 18, 2026):** Embree and OptiX compiled and passed
+actual CPU/GPU validation on computer `014`. Matching FPS benchmarks, rendered
+stills, and camera-demo recordings were generated. See [RESULTS.md](RESULTS.md)
+for measured performance, evidence paths, and submission instructions.
 
-## Tomorrow: quickest lab run
+## Reproduce: quickest lab run
 
 Requirements:
 
@@ -50,7 +48,7 @@ works everywhere. Do not commit downloaded SDK/toolkit files to this repo.
 The script:
 
 1. Checks NVIDIA/toolchain/SDK/display/recording prerequisites.
-2. Builds Embree + OptiX and generates the OptiX PTX.
+2. Builds Embree + OptiX and generates the OptiX IR device module.
 3. Runs independent reference-intersection/material tests for both backends.
 4. Compares linear RGB at fixed settings; optionally runs Compute Sanitizer.
 5. Benchmarks **640 × 480, 1 spp, 8 bounces**, 120 frames after 10 warm-up frames
@@ -90,10 +88,10 @@ Also supported: `CUDA_DEVICE_INDEX`, `EMBREE_DIR`, `OPTIX_COMPUTE_ARCH`, `SPP`,
 `BOUNCES`, `WARMUP`, `FINAL_WIDTH`, `FINAL_HEIGHT`, `DEMO_SECONDS` (1..300), `DEMO_SPP` (default 2),
 `OUTPUT_DIR` (must not exist), `KEEP_CAPTURE_FRAMES=1`.
 
-Default PTX target is **compute_75**, suitable for Turing and newer devices
+Default device target is **compute_75**, suitable for Turing and newer devices
 with compatible SDK/driver/toolkit. Override `OPTIX_COMPUTE_ARCH` for the
 actual GPU/toolkit. Some recent toolkits dropped older offline targets.
-The selected OptiX SDK can impose stricter GPU requirements than the PTX target.
+The selected OptiX SDK can impose stricter GPU requirements than the device target.
 Device index is relative to `CUDA_VISIBLE_DEVICES`, not necessarily the
 physical index shown by `nvidia-smi`.
 
@@ -138,9 +136,15 @@ cmake --build build-cuda/realtime-path-tracer -j 4
 ./build-cuda/realtime-path-tracer/PathTracerViewer --viewer --backend optix
 ```
 
-The PTX file's absolute build path is embedded in the executable; rebuild after
+The device module's absolute build path is embedded in the executable; rebuild after
 moving the build directory, or pass `--ptx /path/to/PathTracerKernel.ptx`.
 Don't copy laptop binaries/build caches to a different machine.
+
+The current build generates `PathTracerKernel.optixir` with `nvcc --optix-ir`.
+The legacy `--ptx` option accepts either PTX or OptiX IR. CUDA 13 invokes
+`ptxas` validation for PTX output and can reject the intentionally unresolved
+OptiX intrinsics, even with relocatable device code; OptiX IR avoids this.
+On the Blackwell lab machine use `OPTIX_COMPUTE_ARCH=120`.
 
 No display in the lab? `RECORD_DEMO=0 make lab-RealtimePathTracer` builds/runs
 headless validation and benchmarks. It explicitly reports that the camera video
@@ -271,7 +275,8 @@ just to produce a submission; preserve logs and investigate failures.
   its CMake-config folder if needed. Embree 3 has a different API and is not
   silently substituted.
 - `optixInit` fails: check SDK/driver compatibility and GPU support.
-- Missing PTX: build the `RealtimePTX` target or correct `--ptx`.
+- Missing device module: build `RealtimeDeviceModule` or correct `--ptx`
+  (normally points to `PathTracerKernel.optixir`).
 - NVCC rejects host compiler: select a toolkit-supported compiler using
   `CUDA_HOST_COMPILER` and `CXX`, with a fresh `REALTIME_BUILD_DIR`; don't begin
   by bypassing checks or installing drivers.

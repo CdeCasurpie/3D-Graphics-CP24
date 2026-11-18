@@ -1,0 +1,5 @@
+Embree median frame FPS: 87.829424
+OptiX median frame FPS: 1075.846072
+OptiX/Embree median-frame-FPS ratio: 12.249267x
+Same machine/settings. Headless render + readback only, not display FPS.
+See backend summaries for dimensions, spp, bounce limit and build times.

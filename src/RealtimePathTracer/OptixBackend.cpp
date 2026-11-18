@@ -91,7 +91,7 @@ public:
             description="NVIDIA OptiX SDK "+std::to_string(OPTIX_VERSION)+" | "+name+" | driver API="+std::to_string(driver);
 
             std::ifstream input(ptxPath,std::ios::binary);
-            if (!input) throw std::runtime_error("Cannot read OptiX PTX: "+ptxPath);
+            if (!input) throw std::runtime_error("Cannot read OptiX device module: "+ptxPath);
             const std::string ptx((std::istreambuf_iterator<char>(input)),std::istreambuf_iterator<char>());
             OptixModuleCompileOptions moduleOptions{};
             moduleOptions.optLevel=OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
