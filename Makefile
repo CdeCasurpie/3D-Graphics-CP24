@@ -138,3 +138,18 @@ run-ShootingRaysCUDA: ShootingRaysCUDA
 
 lab-ShootingRaysCUDA:
 	@bash scripts/run_shooting_rays_cuda.sh
+
+.PHONY: SimplePathTracerCPU test-SimplePathTracer SimplePathTracerCUDA lab-SimplePathTracer
+SimplePathTracerCPU:
+	@cmake -S src/SimplePathTracer -B build/path-tracer -DCMAKE_BUILD_TYPE=Release
+	@cmake --build build/path-tracer --target SimplePathTracerCPU -j 4
+
+test-SimplePathTracer: SimplePathTracerCPU
+	@./build/path-tracer/SimplePathTracerCPU --self-test
+
+SimplePathTracerCUDA:
+	@cmake -S src/SimplePathTracer -B build-cuda/path-tracer -DCMAKE_BUILD_TYPE=Release -DENABLE_CUDA_PATH_TRACER=ON
+	@cmake --build build-cuda/path-tracer --target SimplePathTracerCPU SimplePathTracerCUDA -j 4
+
+lab-SimplePathTracer:
+	@bash scripts/run_simple_path_tracer.sh

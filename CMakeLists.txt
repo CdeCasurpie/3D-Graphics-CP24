@@ -95,6 +95,9 @@ add_executable(ShootingRays
 )
 target_link_libraries(ShootingRays glfw OpenGL::GL Threads::Threads)
 
+# Task 15 has an independent CPU-only / optional-CUDA standalone build too.
+add_subdirectory(src/SimplePathTracer)
+
 # Portable CUDA arithmetic checks can run on a laptop without the toolkit/GPU.
 add_executable(CudaRayMathTests EXCLUDE_FROM_ALL src/ShootingRaysCUDA/host_tests.cpp)
 target_link_libraries(CudaRayMathTests Threads::Threads)

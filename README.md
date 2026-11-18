@@ -70,6 +70,10 @@ This module implements the Garland-Heckbert Quadric Error Metrics algorithm for 
 
 ## Build and Execution Instructions
 
+**Task 15: Simple diffuse path tracer:** CPU and optional CUDA implementations,
+with a same-machine lab benchmark workflow: [instructions](src/SimplePathTracer/README.md).
+Run `make lab-SimplePathTracer` on the lab's CUDA computer.
+
 **Task 13: Shooting rays:** CPU primary-ray depth rendering is available through
 `make run-ShootingRays`. See [the assignment instructions](src/ShootingRays/README.md)
 for headless PNG generation, controls, and verification.
