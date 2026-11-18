@@ -70,6 +70,9 @@ This module implements the Garland-Heckbert Quadric Error Metrics algorithm for 
 
 ## Build and Execution Instructions
 
+**Task 17: Advanced Samplers:** `make run-AdvancedSamplers` compares Halton,
+Sobol, and MT19937 point clouds. See the [comparison images and instructions](src/AdvancedSamplers/README.md).
+
 **Task 16: Real-time Embree/OptiX path tracing:** `make run-RealtimePathTracer`
 for the local Embree viewer; `OPTIX_ROOT=/path/to/sdk make lab-RealtimePathTracer`
 for lab validation, FPS benchmarks and camera-demo recording.

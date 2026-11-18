@@ -167,3 +167,14 @@ run-RealtimePathTracer: RealtimePathTracer
 
 lab-RealtimePathTracer:
 	@bash scripts/run_realtime_path_tracer.sh
+
+.PHONY: AdvancedSamplers run-AdvancedSamplers test-AdvancedSamplers
+AdvancedSamplers:
+	@cmake -B build
+	@cmake --build build --target AdvancedSamplers -j 4
+
+run-AdvancedSamplers: AdvancedSamplers
+	@./build/AdvancedSamplers
+
+test-AdvancedSamplers: AdvancedSamplers
+	@./build/AdvancedSamplers --self-test
