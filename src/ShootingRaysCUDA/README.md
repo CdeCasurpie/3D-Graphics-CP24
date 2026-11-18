@@ -10,6 +10,20 @@ are shared with Task 13 through `../ShootingRays/Scene.h`.
 errors. The actual GPU-generated [submission image](depth_map.png), [results
 report](RESULTS.md), timing metadata, and lab log are included.
 
+## CPU vs CUDA: recorded times in seconds
+
+Same scene (962 triangles) and image resolution (960 × 540), but different
+machines and timing scopes; these are individual observations, not an averaged
+or controlled speedup benchmark.
+
+| Implementation | Machine / timing scope | Time (seconds) |
+| --- | --- | ---: |
+| CPU | Laptop; ray casting and depth statistics | ≈1.1 |
+| CUDA kernel | Lab RTX PRO 4000 Blackwell; kernel only | 0.002563 |
+| CUDA render + normalization | Lab; allocation, upload, kernel, download, cleanup, normalization; no PNG encoding | 0.004427 |
+
+**Interpretation:** CUDA recorded a much shorter runtime, but different hardware and timing scopes prevent a fair numerical speedup claim.
+
 ## Reproduce: one-command lab run
 
 Bring this working tree to the lab (commit/push the code before leaving, or copy
