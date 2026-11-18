@@ -64,6 +64,14 @@ projection appears less visibly regular, while the random cloud has more
 visible clumps and gaps. These are observations for this count, seed, and bin
 alignment—not a general discrepancy ranking or proof of independence.
 
+## Lab verification (machine 014)
+
+Built and ran `make test-AdvancedSamplers` on machine 014 using GCC 13.3.0
+and CMake 3.28. The sampler self-tests passed. The viewer exported both the
+orbit and XY views at 1280 × 720 using the lab's graphical session (`DISPLAY=:0`).
+Both captures were copied back and matched the repository PNGs byte for byte.
+The lab's `--stats` output matched the table above. No CUDA was needed.
+
 Submit `comparison.png` if Canvas displays a file upload. If it asks for a
 link, use the pushed repository image URL and check that the instructor has
 access. The XY image is supplemental evidence.
