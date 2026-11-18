@@ -1,0 +1,7 @@
+backend,trial,width,height,samples,bounces,mode,seed,cpu_threads,wall_seconds,kernel_seconds
+CPU,1,640,480,64,4,path,42,24,0.879768522,
+CUDA,1,640,480,64,4,path,42,24,0.03275179,0.03063593674
+CUDA,2,640,480,64,4,path,42,24,0.0325034,0.03068697548
+CPU,2,640,480,64,4,path,42,24,0.881239829,
+CPU,3,640,480,64,4,path,42,24,0.880209007,
+CUDA,3,640,480,64,4,path,42,24,0.031169161,0.03038393593

@@ -1,9 +1,10 @@
 # Task 15: Simple diffuse path tracer (offline CPU and CUDA)
 
-**Before the lab:** both backends are implemented. CPU tests can run locally.
-NVCC compilation, actual GPU execution, GPU images, and same-machine benchmark
-results must be verified/generated on the lab's NVIDIA computer. No GPU timings
-or CUDA images are claimed from the CPU-only laptop.
+**Verified lab run (November 18, 2026):** both backends compiled and passed
+validation on the lab NVIDIA computer. Rendered images, measured CPU/CUDA
+seconds, and the comparison-table PNG are in [RESULTS.md](RESULTS.md).
+The instructions below reproduce the run; historical results are not laptop
+measurements.
 
 ## Tomorrow: one-command workflow
 

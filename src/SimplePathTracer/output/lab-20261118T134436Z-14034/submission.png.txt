@@ -1,0 +1,6 @@
+CPU hardware concurrency: 24
+CUDA device 0: NVIDIA RTX PRO 4000 Blackwell | compute 12.0 | memory MiB 23987 | runtime 13000 | driver 13020
+Scene: diffuse Cornell box | 960x720 | samples/pixel=256 | mode=path | max diffuse surfaces=5 | seed=42 | CPU threads=24 | exposure=1
+PNG: Reinhard(exposure * linear RGB), then sRGB transfer; raw RGB used for validation.
+Render seconds: 0.345718
+CUDA kernel seconds (0 on CPU): 0.342448

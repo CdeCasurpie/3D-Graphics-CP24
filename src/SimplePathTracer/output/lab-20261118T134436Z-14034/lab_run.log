@@ -1,0 +1,226 @@
+Task 15 lab run UTC: 2026-11-18T13:44:36Z
+fba79c01fe40624762d95c127241dd5f083e5d09
+?? src/ShootingRaysCUDA/depth_map.png
+?? src/ShootingRaysCUDA/depth_map.png.txt
+?? src/ShootingRaysCUDA/lab_run.log
+?? src/SimplePathTracer/output/
+Wed Nov 18 08:44:36 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 595.99.02              Driver Version: 595.99.02      CUDA Version: 13.2     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX PRO 4000 Blac...    Off |   00000000:01:00.0 Off |                  Off |
+| 30%   35C    P8              5W /  145W |      15MiB /  24467MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A            2046      G   /usr/lib/xorg/Xorg                        4MiB |
++-----------------------------------------------------------------------------------------+
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2025 NVIDIA Corporation
+Built on Wed_Aug_20_01:58:59_PM_PDT_2025
+Cuda compilation tools, release 13.0, V13.0.88
+Build cuda_13.0.r13.0/compiler.36424714_0
+cmake version 3.28.3
+
+CMake suite maintained and supported by Kitware (kitware.com/cmake).
+Arquitectura:                            x86_64
+modo(s) de operación de las CPUs:        32-bit, 64-bit
+Address sizes:                           46 bits physical, 48 bits virtual
+Orden de los bytes:                      Little Endian
+CPU(s):                                  24
+Lista de la(s) CPU(s) en línea:          0-23
+ID de fabricante:                        GenuineIntel
+Nombre del modelo:                       Intel(R) Core(TM) Ultra 9 285K
+Familia de CPU:                          6
+Modelo:                                  198
+Hilo(s) de procesamiento por núcleo:     1
+Núcleo(s) por «socket»:                  24
+«Socket(s)»                              1
+Revisión:                                2
+CPU(s) scaling MHz:                      27%
+CPU MHz máx.:                            5700,0000
+CPU MHz mín.:                            800,0000
+BogoMIPS:                                7372,80
+Indicadores:                             fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf tsc_known_freq pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdt_a rdseed adx smap clflushopt clwb intel_pt sha_ni xsaveopt xsavec xgetbv1 xsaves split_lock_detect user_shstk avx_vnni lam wbnoinvd dtherm ida arat pln pts hwp hwp_notify hwp_act_window hwp_epp hwp_pkg_req hfi vnmi umip pku ospke waitpkg gfni vaes vpclmulqdq rdpid bus_lock_detect movdiri movdir64b fsrm md_clear serialize pconfig arch_lbr ibt flush_l1d arch_capabilities
+Virtualización:                          VT-x
+Caché L1d:                               768 KiB (20 instances)
+Caché L1i:                               1,3 MiB (20 instances)
+Caché L2:                                40 MiB (12 instances)
+Caché L3:                                36 MiB (1 instance)
+Modo(s) NUMA:                            1
+CPU(s) del nodo NUMA 0:                  0-23
+Vulnerability Gather data sampling:      Not affected
+Vulnerability Ghostwrite:                Not affected
+Vulnerability Indirect target selection: Not affected
+Vulnerability Itlb multihit:             Not affected
+Vulnerability L1tf:                      Not affected
+Vulnerability Mds:                       Not affected
+Vulnerability Meltdown:                  Not affected
+Vulnerability Mmio stale data:           Not affected
+Vulnerability Old microcode:             Not affected
+Vulnerability Reg file data sampling:    Not affected
+Vulnerability Retbleed:                  Not affected
+Vulnerability Spec rstack overflow:      Not affected
+Vulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:                Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS Not affected; BHI BHI_DIS_S
+Vulnerability Srbds:                     Not affected
+Vulnerability Tsa:                       Not affected
+Vulnerability Tsx async abort:           Not affected
+Vulnerability Vmscape:                   Mitigation; IBPB before exit to userspace
+-- The CXX compiler identification is GNU 13.3.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Looking for a CUDA compiler
+-- Looking for a CUDA compiler - /usr/local/bin/nvcc
+-- The CUDA compiler identification is NVIDIA 13.0.88
+-- Detecting CUDA compiler ABI info
+-- Detecting CUDA compiler ABI info - done
+-- Check for working CUDA compiler: /usr/local/bin/nvcc - skipped
+-- Detecting CUDA compile features
+-- Detecting CUDA compile features - done
+-- Found CUDAToolkit: /usr/local/cuda/targets/x86_64-linux/include (found version "13.0.88") 
+-- Configuring done (4.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer
+gmake[1]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+gmake[2]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+gmake[3]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+[ 25%] Building CXX object CMakeFiles/SimplePathTracerCPU.dir/tests.cpp.o
+[ 50%] Building CXX object CMakeFiles/SimplePathTracerCPU.dir/main.cpp.o
+[ 75%] Building CXX object CMakeFiles/SimplePathTracerCPU.dir/CpuRenderer.cpp.o
+[100%] Linking CXX executable SimplePathTracerCPU
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+[100%] Built target SimplePathTracerCPU
+gmake[3]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+gmake[2]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+gmake[2]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+gmake[3]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+gmake[4]: se entra en el directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+[ 20%] Building CXX object CMakeFiles/SimplePathTracerCUDA.dir/main.cpp.o
+[ 40%] Building CXX object CMakeFiles/SimplePathTracerCUDA.dir/CpuRenderer.cpp.o
+[ 80%] Building CUDA object CMakeFiles/SimplePathTracerCUDA.dir/CudaRenderer.cu.o
+[ 80%] Building CXX object CMakeFiles/SimplePathTracerCUDA.dir/tests.cpp.o
+[100%] Linking CXX executable SimplePathTracerCUDA
+gmake[4]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+[100%] Built target SimplePathTracerCUDA
+gmake[3]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+gmake[2]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+gmake[1]: se sale del directorio '/home/utec_alumno/3D-Graphics-CP24/build-cuda/path-tracer'
+Host path-tracer self-tests PASSED (not CUDA runtime validation).
+CPU hardware concurrency: 24
+CUDA device 0: NVIDIA RTX PRO 4000 Blackwell | compute 12.0 | memory MiB 23987 | runtime 13000 | driver 13020
+Host path-tracer self-tests PASSED (not CUDA runtime validation).
+CUDA kernel self-tests PASSED.
+CPU hardware concurrency: 24
+CUDA device 0: NVIDIA RTX PRO 4000 Blackwell | compute 12.0 | memory MiB 23987 | runtime 13000 | driver 13020
+Linear RGB comparison: max_abs=0 RMSE=0 reference_RMS=1.19964 component_failures=0
+Linear RGB comparison: max_abs=5.96046e-08 RMSE=6.20935e-09 reference_RMS=1.2092 component_failures=0
+Linear RGB comparison: max_abs=0 RMSE=0 reference_RMS=0 component_failures=0
+Linear RGB comparison: max_abs=0 RMSE=0 reference_RMS=0 component_failures=0
+CUDA path-tracer validation PASSED.
+========= COMPUTE-SANITIZER
+Host path-tracer self-tests PASSED (not CUDA runtime validation).
+CUDA kernel self-tests PASSED.
+========= ERROR SUMMARY: 0 errors
+========= COMPUTE-SANITIZER
+CPU hardware concurrency: 24
+CUDA device 0: NVIDIA RTX PRO 4000 Blackwell | compute 12.0 | memory MiB 23987 | runtime 13000 | driver 13020
+Linear RGB comparison: max_abs=0 RMSE=0 reference_RMS=1.19964 component_failures=0
+Linear RGB comparison: max_abs=5.96046e-08 RMSE=6.20935e-09 reference_RMS=1.2092 component_failures=0
+Linear RGB comparison: max_abs=0 RMSE=0 reference_RMS=0 component_failures=0
+Linear RGB comparison: max_abs=0 RMSE=0 reference_RMS=0 component_failures=0
+CUDA path-tracer validation PASSED.
+========= ERROR SUMMARY: 0 errors
+CPU hardware concurrency: 24
+CUDA device 0: NVIDIA RTX PRO 4000 Blackwell | compute 12.0 | memory MiB 23987 | runtime 13000 | driver 13020
+Scene: diffuse Cornell box | 640x480 | samples/pixel=64 | mode=direct | max diffuse surfaces=1 | seed=42 | CPU threads=24 | exposure=1
+PNG: Reinhard(exposure * linear RGB), then sRGB transfer; raw RGB used for validation.
+Triangles: 36
+Full-configuration warm-up (not timed in results)...
+CPU trial 1: 0.191576 s
+CUDA trial 1: 0.00965531 s
+CUDA trial 2: 0.00916089 s
+CPU trial 2: 0.19195 s
+CPU trial 3: 0.191065 s
+CUDA trial 3: 0.00834821 s
+Linear RGB comparison: max_abs=0 RMSE=0 reference_RMS=1.29508 component_failures=0
+Saved src/SimplePathTracer/output/lab-20261118T134436Z-14034/direct/cuda.png
+Saved src/SimplePathTracer/output/lab-20261118T134436Z-14034/direct/cpu.png
+CPU hardware concurrency: 24
+CUDA device 0: NVIDIA RTX PRO 4000 Blackwell | compute 12.0 | memory MiB 23987 | runtime 13000 | driver 13020
+Scene: diffuse Cornell box | 640x480 | samples/pixel=64 | mode=direct | max diffuse surfaces=1 | seed=42 | CPU threads=24 | exposure=1
+PNG: Reinhard(exposure * linear RGB), then sRGB transfer; raw RGB used for validation.
+Trials: 3 | full-configuration warm-up excluded
+CPU median render seconds: 0.191576239
+CUDA median render seconds: 0.009160885
+CUDA median kernel seconds: 0.00749590397
+CPU / CUDA render speedup: 20.9124161x
+CPU / CUDA kernel-only ratio (not end-to-end): 25.5574564x
+Render wall timing includes output allocation and worker/device cleanup. CUDA includes scene upload
+and RGB download. Excludes scene construction, context initialization, warm-up, validation,
+tone mapping, PNG encoding, and file I/O. Kernel timing uses CUDA events.
+CPU hardware concurrency: 24
+CUDA device 0: NVIDIA RTX PRO 4000 Blackwell | compute 12.0 | memory MiB 23987 | runtime 13000 | driver 13020
+Scene: diffuse Cornell box | 640x480 | samples/pixel=64 | mode=path | max diffuse surfaces=4 | seed=42 | CPU threads=24 | exposure=1
+PNG: Reinhard(exposure * linear RGB), then sRGB transfer; raw RGB used for validation.
+Triangles: 36
+Full-configuration warm-up (not timed in results)...
+CPU trial 1: 0.879769 s
+CUDA trial 1: 0.0327518 s
+CUDA trial 2: 0.0325034 s
+CPU trial 2: 0.88124 s
+CPU trial 3: 0.880209 s
+CUDA trial 3: 0.0311692 s
+Linear RGB comparison: max_abs=5.66244e-07 RMSE=5.62426e-09 reference_RMS=1.30159 component_failures=0
+Saved src/SimplePathTracer/output/lab-20261118T134436Z-14034/path/cuda.png
+Saved src/SimplePathTracer/output/lab-20261118T134436Z-14034/path/cpu.png
+CPU hardware concurrency: 24
+CUDA device 0: NVIDIA RTX PRO 4000 Blackwell | compute 12.0 | memory MiB 23987 | runtime 13000 | driver 13020
+Scene: diffuse Cornell box | 640x480 | samples/pixel=64 | mode=path | max diffuse surfaces=4 | seed=42 | CPU threads=24 | exposure=1
+PNG: Reinhard(exposure * linear RGB), then sRGB transfer; raw RGB used for validation.
+Trials: 3 | full-configuration warm-up excluded
+CPU median render seconds: 0.880209007
+CUDA median render seconds: 0.0325034
+CUDA median kernel seconds: 0.0306359367
+CPU / CUDA render speedup: 27.080521x
+CPU / CUDA kernel-only ratio (not end-to-end): 28.7312581x
+Render wall timing includes output allocation and worker/device cleanup. CUDA includes scene upload
+and RGB download. Excludes scene construction, context initialization, warm-up, validation,
+tone mapping, PNG encoding, and file I/O. Kernel timing uses CUDA events.
+CPU hardware concurrency: 24
+CUDA device 0: NVIDIA RTX PRO 4000 Blackwell | compute 12.0 | memory MiB 23987 | runtime 13000 | driver 13020
+Scene: diffuse Cornell box | 960x720 | samples/pixel=256 | mode=path | max diffuse surfaces=5 | seed=42 | CPU threads=24 | exposure=1
+PNG: Reinhard(exposure * linear RGB), then sRGB transfer; raw RGB used for validation.
+Triangles: 36
+Saved src/SimplePathTracer/output/lab-20261118T134436Z-14034/submission.png
+CPU hardware concurrency: 24
+CUDA device 0: NVIDIA RTX PRO 4000 Blackwell | compute 12.0 | memory MiB 23987 | runtime 13000 | driver 13020
+Scene: diffuse Cornell box | 960x720 | samples/pixel=256 | mode=path | max diffuse surfaces=5 | seed=42 | CPU threads=24 | exposure=1
+PNG: Reinhard(exposure * linear RGB), then sRGB transfer; raw RGB used for validation.
+Render seconds: 0.345718
+CUDA kernel seconds (0 on CPU): 0.342448
+SUCCESS: actual CUDA tests, matched CPU/GPU benchmarks, and final render completed.
+Inspect src/SimplePathTracer/output/lab-20261118T134436Z-14034/submission.png before submitting.
+Timing evidence: src/SimplePathTracer/output/lab-20261118T134436Z-14034/direct/summary.txt and src/SimplePathTracer/output/lab-20261118T134436Z-14034/path/summary.txt
+No commit, push, or network upload was performed.

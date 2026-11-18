@@ -1,0 +1,13 @@
+CPU hardware concurrency: 24
+CUDA device 0: NVIDIA RTX PRO 4000 Blackwell | compute 12.0 | memory MiB 23987 | runtime 13000 | driver 13020
+Scene: diffuse Cornell box | 640x480 | samples/pixel=64 | mode=direct | max diffuse surfaces=1 | seed=42 | CPU threads=24 | exposure=1
+PNG: Reinhard(exposure * linear RGB), then sRGB transfer; raw RGB used for validation.
+Trials: 3 | full-configuration warm-up excluded
+CPU median render seconds: 0.191576239
+CUDA median render seconds: 0.009160885
+CUDA median kernel seconds: 0.00749590397
+CPU / CUDA render speedup: 20.9124161x
+CPU / CUDA kernel-only ratio (not end-to-end): 25.5574564x
+Render wall timing includes output allocation and worker/device cleanup. CUDA includes scene upload
+and RGB download. Excludes scene construction, context initialization, warm-up, validation,
+tone mapping, PNG encoding, and file I/O. Kernel timing uses CUDA events.
