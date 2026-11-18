@@ -178,3 +178,14 @@ run-AdvancedSamplers: AdvancedSamplers
 
 test-AdvancedSamplers: AdvancedSamplers
 	@./build/AdvancedSamplers --self-test
+
+.PHONY: ReconstructionFilters test-ReconstructionFilters run-ReconstructionFilters
+ReconstructionFilters:
+	@cmake -S src/ReconstructionFilters -B build/reconstruction -DCMAKE_BUILD_TYPE=Release
+	@cmake --build build/reconstruction --parallel 4
+
+test-ReconstructionFilters: ReconstructionFilters
+	@./build/reconstruction/ReconstructionFilters --self-test
+
+run-ReconstructionFilters: ReconstructionFilters
+	@./build/reconstruction/ReconstructionFilters
